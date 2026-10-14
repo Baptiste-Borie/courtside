@@ -1,9 +1,10 @@
+import { createCalendar, type Calendar } from './calendar'
 import { attributeLabels, tactics, type Player } from './model'
 import type { ScoutingState } from './scouting'
 import type { Tournament } from './tournament'
 export const saveKey = 'courtside.save.v1'
 export interface Save {
-  version: 1; name: string; roster: Player[]; selected: string[]
+  version: 1; calendar: Calendar; name: string; roster: Player[]; selected: string[]
   tactic: keyof typeof tactics; tournament: Tournament | null
   money: number; titles: number; edition: number; scouting: ScoutingState
 }
@@ -50,5 +51,11 @@ export function decodeSave(text: string): Save {
   const s=x.scouting
   if(!players(s.pool)||s.pool.length!==30||!strings(s.known)||s.known.some(id=>!(s.pool as Player[]).some(p=>p.id===id))||!integer(s.sequence,0,10)||!integer(s.revealed,0,3)) throw Error('Dossiers de scouting invalides.')
   if(s.campaign===null ? s.revealed!==0 : !strings(s.campaign)||s.campaign.length<1||s.campaign.length>3||s.revealed>s.campaign.length||s.campaign.some(id=>!(s.pool as Player[]).some(p=>p.id===id))||s.campaign.slice(0,s.revealed).some(id=>!(s.known as string[]).includes(id))) throw Error('Campagne de scouting invalide.')
+  // Migration des sauvegardes du patch 005 : un tournoi entamé reprend immédiatement.
+  if(x.calendar===undefined) x.calendar={...createCalendar(),matchDay:x.tournament && record(x.tournament) && !x.tournament.finished ? 0 : null}
+  const c=x.calendar
+  if(!record(c)||!integer(c.day,0,365000)||![c.matchDay,c.scoutingDay].every(day=>day===null||integer(day,c.day as number,365000))) throw Error('Calendrier invalide.')
+  if(record(x.tournament) && !x.tournament.finished ? c.matchDay===null : c.matchDay!==null) throw Error('Calendrier du tournoi incohérent.')
+  if(c.scoutingDay!==null && s.campaign===null) throw Error('Calendrier du scouting incohérent.')
   return x as unknown as Save
 }

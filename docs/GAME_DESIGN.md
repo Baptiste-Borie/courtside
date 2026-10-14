@@ -61,3 +61,13 @@ Sauvegarde automatique versionnée dans le navigateur. Elle conserve toute la se
 de jeu, hors laboratoire et onglet sélectionné. Les données sont validées à la reprise.
 Les erreurs de stockage sont visibles ; une sauvegarde invalide n'est pas écrasée.
 Nouvelle partie exige une confirmation. Aucune synchronisation ou export pour l'instant.
+
+## Implémenté — patch 006
+
+Calendrier événementiel : 14 jours avant le début du tournoi, puis un match
+par jour. Le scouting revient après sept jours. Un bouton avance directement
+à l'événement le plus proche et traite le retour des dossiers s’il est arrivé.
+Un match disponible attend la décision du joueur avant de laisser avancer
+le calendrier. Les événements simultanés restent tous accessibles.
+Date initiale : 1er avril 1983. La sauvegarde 005 est migrée sans perdre la partie.
+Le vieillissement et les effets du temps sur les caractéristiques restent futurs.
