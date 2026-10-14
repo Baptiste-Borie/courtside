@@ -27,10 +27,10 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 002
+## Prototype 003
 
 Écran principal : six joueurs, choix de trois titulaires, tournoi à quatre équipes,
-classement, récompenses et titres pendant la session. Aucun recrutement ou sauvegarde
+classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Aucune sauvegarde
 pour le moment. Le laboratoire précédent reste accessible via son onglet.
 
 Dans le laboratoire : deux équipes procédurales de trois joueurs, trois tactiques et simulation
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-002.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-003.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -69,3 +69,8 @@ incluses. Le premier lancement nécessite un accès réseau pour télécharger C
 
 Playwright automatise le navigateur ; fflate crée le ZIP sans commande système.
 Ces deux dépendances servent uniquement au développement.
+
+Le scouting coûte 50 F et révèle trois dossiers un par un. Le recrutement est
+une dépense distincte ; dix joueurs maximum. Les dossiers observés restent
+accessibles. Campagnes immédiates et rapports exacts pour ce prototype.
+La revue automatique couvre aussi le scouting et le recrutement après deux tournois.

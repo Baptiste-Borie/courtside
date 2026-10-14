@@ -42,3 +42,15 @@ stable. Récompense de 300/200/125/75 francs selon le rang. Montants gamifiés.
 Les gains et titres sont conservés pendant la session, sans sauvegarde.
 Nouveau tournoi disponible après le précédent ; aucun calendrier ni vieillissement
 pour l'instant. L'argent sera utilisable avec le futur scouting.
+
+## Implémenté — patch 003
+
+Trente prospects sont générés au début de la session dans un pool fixe, séparé
+des adversaires actuels. Le scouting révèle jusqu'à trois joueurs encore inconnus
+pour 50 F ; il ne crée aucun joueur. Révélation dossier par dossier, puis recrutement
+optionnel contre un coût de 25 F + 3 F par point de moyenne au-dessus de 40.
+Effectif plafonné à dix joueurs ; aucun départ de joueur pour l'instant.
+Les dossiers restent disponibles après leur campagne. Notes exactes et potentiel
+visible dans ce prototype : incertitude des rapports et délais restent à développer.
+Les campagnes sont immédiates. Aucun calendrier, vieillissement ou renouvellement
+du pool à ce stade. Les rapports ne garantissent pas un joueur meilleur.

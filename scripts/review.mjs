@@ -48,6 +48,22 @@ try {
   await page.getByRole('button', { name: 'Participer au prochain tournoi' }).waitFor()
   await capture(page, '03-reward.png')
   report.checks.push('Inscription, trois matchs et récompense de tournoi')
+  await page.getByRole('button', { name: 'Participer au prochain tournoi' }).click()
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Jouer le prochain match' }).click()
+  await page.getByRole('button', { name: 'Lancer un scouting · 50 F', exact: true }).click()
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Révéler le prochain dossier' }).click()
+  await capture(page, '06-scouting.png')
+  await page.getByRole('button', { name: 'Terminer la campagne', exact: true }).click()
+  const hire = page.getByRole('button', { name: /^Recruter/ })
+  const buttons = await hire.all()
+  let recruited = false
+  for (const button of buttons) {
+    if (await button.isEnabled()) { await button.click(); recruited = true; break }
+  }
+  if (!recruited) throw Error('Aucun recrutement accessible après deux tournois')
+  await page.getByRole('button', { name: 'Dans votre équipe', exact: true }).waitFor()
+  await capture(page, '07-recruitment.png')
+  report.checks.push('Scouting, trois révélations et premier recrutement')
   await page.setViewportSize({ width: 390, height: 844 })
   await capture(page, '04-mobile.png')
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw Error('Débordement mobile')
@@ -76,7 +92,7 @@ try {
   await writeFile(new URL('report.json', output), json)
   const archive = { 'report.json': strToU8(json) }
   for (const name of report.captures) archive[name] = new Uint8Array(await readFile(new URL(name, output)))
-  await writeFile(new URL('courtside-revue-002.zip', output), zipSync(archive))
-  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-002.zip`)
+  await writeFile(new URL('courtside-revue-003.zip', output), zipSync(archive))
+  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-003.zip`)
   for (const error of report.errors) console.error(error)
 }

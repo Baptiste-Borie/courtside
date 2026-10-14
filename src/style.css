@@ -17,3 +17,10 @@ summary { font-size:13px; cursor:pointer; } dl { display:grid; grid-template-col
 .mode-nav [aria-pressed="true"] { background:#1e4776; color:white; }
 .selection { display:flex; align-items:center; gap:8px; }.selection input { width:18px; height:18px; }
 button:disabled { opacity:.5; cursor:not-allowed; } .history-title { margin-top:28px; }
+
+.scouting-panel { border:1px solid #dce2ea; border-radius:10px; padding:20px; margin-bottom:24px; }
+.prospect-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:16px; margin-top:16px; }
+.prospect-card { padding:18px; border:1px solid #dce2ea; border-radius:8px; animation:reveal-card .3s ease-out; }
+.reveal-zone { padding:16px 0; } .scouting-panel > details { margin-top:20px; }
+@keyframes reveal-card { from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)} }
+@media(prefers-reduced-motion:reduce) { .prospect-card { animation:none; } }
