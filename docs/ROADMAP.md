@@ -8,7 +8,8 @@
 - Patch 004 : navigation Équipe / Tournoi / Scouting / Laboratoire.
 - Patch 005 : sauvegarde locale automatique et reprise vérifiée.
 - Patch 006 : calendrier événementiel, matchs programmés et délai de scouting.
-- Prochaines étapes : fatigue, entraînement et progression.
+- Patch 007 : fatigue, effet en match et récupération avec le calendrier.
+- Prochaines étapes : entraînement, progression et circuit de compétitions.
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.

@@ -1,9 +1,10 @@
+import { effectiveTeam } from './fitness'
 import { defaultRules, type MatchResult, type Player, type PlayerStats, type Rules, type Tactic, type Team } from './model'
 import { pickWeighted, random } from './random'
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length
 export function simulate(a: Team, b: Team, tacticA: Tactic, tacticB: Tactic, seed: number, rules: Rules = defaultRules): MatchResult {
   if (![rules.target, rules.insideValue, rules.outsideValue].every(n => Number.isInteger(n) && n > 0) || rules.target > 1000) throw new Error('Règles invalides')
-  const teams = [a, b]
+  const teams = [effectiveTeam(a), effectiveTeam(b)]
   if (a.id === b.id || teams.some(t => t.players.length !== 3) || new Set(teams.flatMap(t => t.players.map(p => p.id))).size !== 6) throw new Error('Deux équipes distinctes de trois joueurs sont nécessaires')
   const rng = random(seed)
   const tactics = [tacticA, tacticB]

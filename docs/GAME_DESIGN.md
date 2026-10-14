@@ -71,3 +71,12 @@ Un match disponible attend la décision du joueur avant de laisser avancer
 le calendrier. Les événements simultanés restent tous accessibles.
 Date initiale : 1er avril 1983. La sauvegarde 005 est migrée sans perdre la partie.
 Le vieillissement et les effets du temps sur les caractéristiques restent futurs.
+
+## Implémenté — patch 007
+
+Fatigue après chaque match pour ses trois participants, pondérée par l’endurance.
+Récupération à six points par jour, y compris pour les adversaires. Les joueurs
+du banc ne gagnent pas de fatigue. Le moteur applique une baisse temporaire
+des notes physiques, de finition, de tir extérieur et de défense au-delà de 20
+points de fatigue ; maximum 25 % à 100. Passe et vision restent intactes.
+La fatigue ne modifie pas les notes permanentes. Les blessures restent futures.

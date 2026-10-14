@@ -1,3 +1,4 @@
+import { afterPlaying } from './fitness'
 import { generateTeam } from './generate'
 import { simulate } from './simulate'
 import type { MatchResult, Player, Tactic, Team } from './model'
@@ -28,6 +29,8 @@ export function playRound(current: Tournament, roster: Player[], selected: strin
   for(const [home,away] of schedule[next.round]!) {
     const a=next.teams[home]!, b=next.teams[away]!
     const result=simulate(a,b,home===0?tactic:'balanced','balanced',next.seed*100+next.round*10+home)
+    next.teams[home]={...a,players:afterPlaying(a.players,a.players.map(p=>p.id))}
+    next.teams[away]={...b,players:afterPlaying(b.players,b.players.map(p=>p.id))}
     next.matches.push({round:next.round+1,home:a.id,away:b.id,result})
     const first=next.standings.find(s=>s.teamId===a.id)!, second=next.standings.find(s=>s.teamId===b.id)!
     first.scored+=result.scores[0]; first.conceded+=result.scores[1]
