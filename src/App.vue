@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
+import { decodeSave, saveKey, type Save } from './game/save'
 import Laboratory from './Laboratory.vue'
 import { attributeLabels, tactics, type Tactic } from './game/model'
 import { createScouting, launchScouting, revealNext, closeCampaign, recruit, recruitmentCost, scoutingCost } from './game/scouting'
@@ -11,6 +12,29 @@ const lab = computed(()=>screen.value==='lab')
 const name = ref('Les Aurores'), roster = shallowRef(createRoster(1983))
 const selected = ref(roster.value.slice(0,3).map(p=>p.id)), tactic = ref<Tactic>('balanced')
 const tournament = shallowRef<Tournament | null>(null), money=ref(0), titles=ref(0), edition=ref(0), error=ref('')
+const saveStatus = ref('Sauvegarde automatique active')
+let canSave = true
+try {
+ const raw=localStorage.getItem(saveKey)
+ if(raw) {
+  const loaded=decodeSave(raw)
+  name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;tactic.value=loaded.tactic
+  tournament.value=loaded.tournament;money.value=loaded.money;titles.value=loaded.titles;edition.value=loaded.edition;scouting.value=loaded.scouting
+  saveStatus.value='Partie reprise'
+ }
+} catch(e) {canSave=false;saveStatus.value=`Reprise impossible : ${(e as Error).message} Votre sauvegarde est conservée.`}
+function snapshot(): Save {return {version:1,name:name.value,roster:roster.value,selected:selected.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
+watch(snapshot,()=>{
+ if(!canSave) return
+ try {localStorage.setItem(saveKey,JSON.stringify(snapshot()));saveStatus.value='Partie sauvegardée'}
+ catch {saveStatus.value='Sauvegarde indisponible. Votre partie reste jouable pendant cette session.'}
+},{deep:true,flush:'post'})
+function newGame() {
+ if(!window.confirm('Effacer votre partie sauvegardée et recommencer ?')) return
+ try {localStorage.removeItem(saveKey)} catch {saveStatus.value='Impossible d’effacer la sauvegarde.';return}
+ canSave=true;name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
+ tactic.value='balanced';tournament.value=null;money.value=0;titles.value=0;edition.value=0;scouting.value=createScouting(1983);screen.value='team';error.value=''
+}
 const lastMatch=computed(()=>tournament.value?.matches.filter(m=>m.home==='club'||m.away==='club').at(-1))
 const opponent=computed(()=>tournament.value && !tournament.value.finished ? tournament.value.teams[tournament.value.round+1] : null)
 function toggle(id:string) { selected.value=selected.value.includes(id)?selected.value.filter(x=>x!==id):selected.value.length<3?[...selected.value,id]:selected.value }
@@ -45,6 +69,7 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
     <header><div><p class="eyebrow">France · 1983 · Circuit local</p><h1>{{ screen==='team' ? 'Votre équipe' : screen==='tournament' ? 'Coupe du quartier' : 'Votre réseau de scouting' }}</h1></div><span class="tag">{{ money }} F · {{ titles }} titre{{ titles > 1 ? 's' : '' }}</span></header>
     <p>{{ screen==='team' ? 'Choisissez trois titulaires parmi vos joueurs, puis inscrivez votre équipe au tournoi.' : screen==='tournament' ? 'Trois rencontres pour décrocher le titre et financer vos prochains recrutements.' : 'Découvrez des profils, comparez leurs qualités et renforcez votre équipe.' }}</p>
     <div v-if="screen!=='scouting'" class="toolbar"><label>Nom de votre équipe<input v-model="name" :disabled="!!tournament && !tournament.finished" maxlength="40" /></label><label>Tactique<select v-model="tactic"><option v-for="(label,key) in tactics" :value="key" :key="key">{{ label }}</option></select></label><button v-if="!tournament || tournament.finished" class="primary" :disabled="selected.length!==3" @click="start">{{ tournament ? 'Participer au prochain tournoi' : 'Inscrire mon équipe' }}</button></div>
+    <div class="save-bar"><p role="status">{{ saveStatus }}</p><button @click="newGame">Nouvelle partie</button></div>
     <p v-if="error" role="alert">{{ error }}</p>
     <section v-if="screen==='tournament' && tournament" class="result">
       <p class="eyebrow">Coupe du quartier · Édition {{ edition }}</p>
@@ -66,6 +91,6 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
       </section>
       <section v-if="screen==='tournament'" class="team"><h2>{{ tournament?'Classement du tournoi':'Coupe du quartier' }}</h2><template v-if="!tournament"><p>Quatre équipes, trois rencontres chacune. Premier à 21, paniers à 1 et 2 points.</p><p>Récompenses : 300 F au champion, 200 F au deuxième, 125 F au troisième et 75 F au quatrième.</p><p class="hint">Les francs sont une ressource de jeu ; les montants ne sont pas une reconstitution historique.</p></template><template v-else><div class="table-wrap"><table><caption>Départage : victoires, différence de points, points marqués, identifiant stable.</caption><thead><tr><th>Équipe</th><th>V</th><th>Diff.</th></tr></thead><tbody><tr v-for="(line,i) in tournament.standings" :key="line.teamId"><th>{{ i+1 }}. {{ line.name }}</th><td>{{ line.wins }}</td><td>{{ line.scored-line.conceded }}</td></tr></tbody></table></div><h3 class="history-title">Résultats du tournoi</h3><p v-for="match in tournament.matches" :key="`${match.round}-${match.home}`" class="hint">{{ teamName(match.home) }} {{ match.result.scores[0] }}–{{ match.result.scores[1] }} {{ teamName(match.away) }}</p></template></section>
     </div>
-    <footer>Prototype 004 · Pas encore de sauvegarde : recharger la page remet la session à zéro. Le monde et le calendrier évolueront dans les prochains patchs.</footer>
+    <footer>Prototype 005 · Sauvegarde locale automatique dans ce navigateur. Le monde et le calendrier évolueront dans les prochains patchs.</footer>
   </main>
 </template>

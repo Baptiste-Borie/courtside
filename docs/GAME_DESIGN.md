@@ -54,3 +54,10 @@ Les dossiers restent disponibles après leur campagne. Notes exactes et potentie
 visible dans ce prototype : incertitude des rapports et délais restent à développer.
 Les campagnes sont immédiates. Aucun calendrier, vieillissement ou renouvellement
 du pool à ce stade. Les rapports ne garantissent pas un joueur meilleur.
+
+## Implémenté — patch 005
+
+Sauvegarde automatique versionnée dans le navigateur. Elle conserve toute la session
+de jeu, hors laboratoire et onglet sélectionné. Les données sont validées à la reprise.
+Les erreurs de stockage sont visibles ; une sauvegarde invalide n'est pas écrasée.
+Nouvelle partie exige une confirmation. Aucune synchronisation ou export pour l'instant.

@@ -1,0 +1,54 @@
+import { attributeLabels, tactics, type Player } from './model'
+import type { ScoutingState } from './scouting'
+import type { Tournament } from './tournament'
+export const saveKey = 'courtside.save.v1'
+export interface Save {
+  version: 1; name: string; roster: Player[]; selected: string[]
+  tactic: keyof typeof tactics; tournament: Tournament | null
+  money: number; titles: number; edition: number; scouting: ScoutingState
+}
+const record = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x)
+const integer = (x: unknown, min=0, max=Number.MAX_SAFE_INTEGER): x is number => typeof x==='number' && Number.isInteger(x) && x>=min && x<=max
+const strings = (x: unknown): x is string[] => Array.isArray(x) && x.every(v=>typeof v==='string') && new Set(x).size===x.length
+function player(x: unknown): x is Player {
+  if(!record(x) || !record(x.attributes)) return false
+  const attributes=x.attributes
+  return ['id','firstName','lastName','teamId'].every(k=>typeof x[k]==='string') && (x.id as string).length>0
+    && integer(x.birthYear,1800,1983) && integer(x.height,140,250) && integer(x.weight,35,200)
+    && ['G','W','C'].includes(String(x.position)) && Array.isArray(x.secondaryPositions)
+    && x.secondaryPositions.every(v=>['G','W','C'].includes(v))
+    && Object.keys(attributeLabels).every(k=>integer(attributes[k],0,99))
+    && integer(x.overall,0,99) && integer(x.potential,0,99) && integer(x.fatigue,0,100) && typeof x.healthy==='boolean'
+}
+function players(x: unknown): x is Player[] {return Array.isArray(x) && x.every(player) && new Set(x.map(p=>p.id)).size===x.length}
+function tournament(x: unknown): boolean {
+  if(x===null) return true
+  if(!record(x) || !integer(x.seed) || !integer(x.round,0,3) || !Array.isArray(x.teams) || x.teams.length!==4) return false
+  if(!x.teams.every(t=>record(t)&&typeof t.id==='string'&&typeof t.name==='string'&&players(t.players)&&t.players.length===3)) return false
+  const ids=x.teams.map(t=>t.id)
+  if(new Set(ids).size!==4 || ids[0]!=='club' || !Array.isArray(x.standings) || x.standings.length!==4) return false
+  if(!x.standings.every(s=>record(s)&&ids.includes(s.teamId)&&typeof s.name==='string'&&integer(s.wins,0,3)&&integer(s.scored)&&integer(s.conceded))) return false
+  if(new Set(x.standings.map(s=>s.teamId)).size!==4 || !Array.isArray(x.matches) || x.matches.length!==x.round*2) return false
+  for(const m of x.matches) {
+    if(!record(m)||!integer(m.round,1,x.round)||!ids.includes(m.home)||!ids.includes(m.away)||m.home===m.away||!record(m.result)) return false
+    const r=m.result
+    if(!integer(r.seed)||!integer(r.possessions,1)||!Array.isArray(r.scores)||r.scores.length!==2||!r.scores.every(v=>integer(v,0,22))) return false
+    if(Math.max(...r.scores)<21 || Math.min(...r.scores)>=21 || r.winner!==(r.scores[0]>r.scores[1]?m.home:m.away)) return false
+    if(!Array.isArray(r.stats)||r.stats.length!==2) return false
+    for(let side=0;side<2;side++) {
+      const lines=r.stats[side]
+      if(!Array.isArray(lines)||lines.length!==3||!lines.every(p=>record(p)&&typeof p.playerId==='string'&&['points','rebounds','assists','steals','blocks','made','attempted','outsideMade','outsideAttempted'].every(k=>integer(p[k])))) return false
+      if(lines.reduce((sum,p)=>sum+p.points,0)!==r.scores[side]) return false
+    }
+  }
+  return x.finished===(x.round===3) && (x.finished ? integer(x.rank,1,4)&&x.reward===[300,200,125,75][x.rank-1] : x.rank===null&&x.reward===0)
+}
+export function decodeSave(text: string): Save {
+  const x: unknown=JSON.parse(text)
+  if(!record(x)||x.version!==1||typeof x.name!=='string'||x.name.length>40||!players(x.roster)||x.roster.length<6||x.roster.length>10||!strings(x.selected)||x.selected.length>3||x.selected.some(id=>!(x.roster as Player[]).some(p=>p.id===id))) throw Error('Sauvegarde incompatible ou endommagée.')
+  if(!Object.hasOwn(tactics,String(x.tactic))||!integer(x.money)||!integer(x.titles)||!integer(x.edition)||x.titles>x.edition||!tournament(x.tournament)||!record(x.scouting)) throw Error('Sauvegarde incompatible ou endommagée.')
+  const s=x.scouting
+  if(!players(s.pool)||s.pool.length!==30||!strings(s.known)||s.known.some(id=>!(s.pool as Player[]).some(p=>p.id===id))||!integer(s.sequence,0,10)||!integer(s.revealed,0,3)) throw Error('Dossiers de scouting invalides.')
+  if(s.campaign===null ? s.revealed!==0 : !strings(s.campaign)||s.campaign.length<1||s.campaign.length>3||s.revealed>s.campaign.length||s.campaign.some(id=>!(s.pool as Player[]).some(p=>p.id===id))||s.campaign.slice(0,s.revealed).some(id=>!(s.known as string[]).includes(id))) throw Error('Campagne de scouting invalide.')
+  return x as unknown as Save
+}
