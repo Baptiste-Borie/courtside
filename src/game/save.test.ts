@@ -5,7 +5,7 @@ import { createRoster, playRound, startTournament } from './tournament'
 import { createScouting, launchScouting, revealNext, recruit } from './scouting'
 function game(): Save {
  const roster=createRoster(1983)
- return {version:1,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
+ return {version:1,training:null,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
 }
 it('reprend une partie avec tournoi en cours et recrutement',()=>{
  const s=game();s.edition=1;s.tournament=playRound(startTournament(1983,s.roster,s.selected,s.name),s.roster,s.selected,'inside')
@@ -34,4 +34,11 @@ it('migre la sauvegarde 005 et conserve les événements en attente',()=>{
  expect(decodeSave(JSON.stringify(old)).calendar).toEqual(createCalendar())
  s.scouting=launchScouting(s.scouting,100).state;s.calendar.scoutingDay=7
  expect(decodeSave(JSON.stringify(s)).calendar.scoutingDay).toBe(7)
+})
+it('conserve un camp en attente et migre les sauvegardes précédentes',()=>{
+ const s=game();s.training={playerId:s.roster[0]!.id,focus:'shooting',day:7};s.calendar.trainingDay=7
+ expect(decodeSave(JSON.stringify(s)).training).toEqual(s.training)
+ const old={...game()} as Partial<Save>;delete old.training
+ const json=JSON.parse(JSON.stringify(old));delete json.calendar.trainingDay
+ expect(decodeSave(JSON.stringify(json)).training).toBe(null)
 })

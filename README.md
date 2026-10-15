@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 007
+## Prototype 008
 
 Écran principal : six joueurs, choix de trois titulaires, tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-007.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-008.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -110,3 +110,11 @@ entre événements. La fatigue est comprise entre 0 et 100, affichée sur les fi
 et sauvegardée. Au-delà de 20, elle réduit certaines performances jusqu’à 25 %.
 Les notes permanentes restent intactes. Les adversaires suivent les mêmes règles.
 Les blessures et entraînements ne sont pas encore simulés.
+
+## Camps individuels
+
+Onglet Entraînement : choisissez un joueur et un axe, puis financez un camp
+à 100 F. Après sept jours de jeu, jusqu’à deux notes gagnent un point et le joueur
+prend huit points de fatigue. Le total des notes ne dépasse pas le budget défini
+par son potentiel ; chaque note reste au plus à 99. Un camp à la fois.
+Les anciennes sauvegardes sont migrées ; un camp en cours survit au rechargement.

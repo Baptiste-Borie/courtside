@@ -80,3 +80,13 @@ du banc ne gagnent pas de fatigue. Le moteur applique une baisse temporaire
 des notes physiques, de finition, de tir extérieur et de défense au-delà de 20
 points de fatigue ; maximum 25 % à 100. Passe et vision restent intactes.
 La fatigue ne modifie pas les notes permanentes. Les blessures restent futures.
+
+## Implémenté — patch 008
+
+Camp individuel de sept jours pour 100 F. Tir, création, défense ou jeu intérieur :
+deux caractéristiques gagnent au plus un point chacune. Budget global de croissance
+limité à potentiel × nombre de caractéristiques ; plafond individuel 99.
+Huit points de fatigue si progression effective. Pas encore de progression en match,
+de variation probabiliste ou de régression liée à l'âge. Un camp en attente est
+sauvegardé et traité au prochain événement correspondant. Matchs autorisés pendant
+le camp : simplification provisoire. Les adversaires ne suivent pas encore de camps.

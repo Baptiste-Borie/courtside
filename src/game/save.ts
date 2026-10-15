@@ -1,10 +1,11 @@
+import { trainingLabels, type Training } from './training'
 import { createCalendar, type Calendar } from './calendar'
 import { attributeLabels, tactics, type Player } from './model'
 import type { ScoutingState } from './scouting'
 import type { Tournament } from './tournament'
 export const saveKey = 'courtside.save.v1'
 export interface Save {
-  version: 1; calendar: Calendar; name: string; roster: Player[]; selected: string[]
+  version: 1; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
   tactic: keyof typeof tactics; tournament: Tournament | null
   money: number; titles: number; edition: number; scouting: ScoutingState
 }
@@ -54,8 +55,13 @@ export function decodeSave(text: string): Save {
   // Migration des sauvegardes du patch 005 : un tournoi entamé reprend immédiatement.
   if(x.calendar===undefined) x.calendar={...createCalendar(),matchDay:x.tournament && record(x.tournament) && !x.tournament.finished ? 0 : null}
   const c=x.calendar
-  if(!record(c)||!integer(c.day,0,365000)||![c.matchDay,c.scoutingDay].every(day=>day===null||integer(day,c.day as number,365000))) throw Error('Calendrier invalide.')
+  if(record(c) && c.trainingDay===undefined)c.trainingDay=null
+  if(x.training===undefined)x.training=null
+  if(!record(c)||!integer(c.day,0,365000)||![c.matchDay,c.scoutingDay,c.trainingDay].every(day=>day===null||integer(day,c.day as number,365000))) throw Error('Calendrier invalide.')
   if(record(x.tournament) && !x.tournament.finished ? c.matchDay===null : c.matchDay!==null) throw Error('Calendrier du tournoi incohérent.')
   if(c.scoutingDay!==null && s.campaign===null) throw Error('Calendrier du scouting incohérent.')
+  const t=x.training
+  if(t!==null && (!record(t)||typeof t.playerId!=='string'||!x.roster.some(p=>p.id===t.playerId)||!Object.hasOwn(trainingLabels,String(t.focus))||!integer(t.day,c.day as number)||t.day!==c.trainingDay)) throw Error('Camp d’entraînement invalide.')
+  if(t===null && c.trainingDay!==null)throw Error('Calendrier d’entraînement incohérent.')
   return x as unknown as Save
 }
