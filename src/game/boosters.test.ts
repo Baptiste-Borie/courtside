@@ -11,7 +11,7 @@ function save():Save {
 }
 it('répartit exactement les douze joueurs existants dans trois pochettes',()=>{
  const original=foundingCandidates()
- expect([0,1,2].flatMap(packCandidates)).toEqual(original)
+ expect([0,1,2].flatMap(index=>packCandidates(index))).toEqual(original)
  for(const index of [-1,3,0.5])expect(()=>packCandidates(index)).toThrow()
  let state=createFounding()
  for(const index of [2,0,1])state=openPack(state,index)

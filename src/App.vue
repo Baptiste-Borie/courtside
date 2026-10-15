@@ -114,7 +114,7 @@ function pickFounder(id:string) {
 function confirmFounding() {
  try {
   if(founding.value.revealed.length!==12)throw Error('Dévoilez les douze joueurs avant de composer votre effectif.')
-  const club=foundClub(name.value,founding.value.selected)
+  const club=foundClub(name.value,founding.value.selected,founding.value.generation)
   name.value=club.name;roster.value=club.roster;selected.value=club.selected;trainingPlayer.value=club.roster[0]!.id
   founding.value=club.founding;screen.value='club';error.value=''
  } catch(e) {error.value=(e as Error).message}

@@ -6,13 +6,13 @@ import PlayerCard from './PlayerCard.vue'
 import { foundingCandidates, type Founding, type FoundingPhase } from './game/founding'
 const props=defineProps<{name:string;founding:Founding;saveStatus:string;error:string}>()
 const emit=defineEmits<{'update:name':[value:string];'update:founding':[value:Founding];pick:[id:string];confirm:[];restart:[];menu:[]}>()
-const candidates=foundingCandidates(),page=ref(0),pageSize=ref(window.innerWidth<600?1:4)
+const candidates=computed(()=>foundingCandidates(props.founding.generation)),page=ref(0),pageSize=ref(window.innerWidth<600?1:4)
 function resize(){const size=window.innerWidth<600?1:4;if(size!==pageSize.value){page.value=Math.floor(page.value*pageSize.value/size);pageSize.value=size}}
 onMounted(()=>window.addEventListener('resize',resize));onUnmounted(()=>window.removeEventListener('resize',resize))
-const lastPage=computed(()=>Math.ceil(candidates.length/pageSize.value)-1)
+const lastPage=computed(()=>Math.ceil(candidates.value.length/pageSize.value)-1)
 const phase=computed<FoundingPhase>(()=>props.founding.phase??(props.founding.revealed.length===12?'selection':'packs'))
-const chosen=computed(()=>props.founding.selected.map(id=>candidates.find(player=>player.id===id)!))
-const visible=computed(()=>candidates.slice(page.value*pageSize.value,page.value*pageSize.value+pageSize.value))
+const chosen=computed(()=>props.founding.selected.map(id=>candidates.value.find(player=>player.id===id)!))
+const visible=computed(()=>candidates.value.slice(page.value*pageSize.value,page.value*pageSize.value+pageSize.value))
 const phases:FoundingPhase[]=['intro','identity','packs','selection']
 const labels=['Le départ','Le nom','Les rencontres','L’effectif']
 function go(value:FoundingPhase) {emit('update:founding',{...props.founding,phase:value})}

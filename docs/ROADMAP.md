@@ -21,3 +21,4 @@
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.
 
 - Patch 014 : suppression du dos après révélation, fiche joueur séparée et couleurs par niveau de note.
+- Patch 015 : vingt profils de jeu, gabarits et caractéristiques cohérents, exceptions rares et préservation des créations déjà entamées. Voir PLAYER_PROFILES.md. Traits, badges et titres individuels reportés.

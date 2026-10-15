@@ -214,3 +214,14 @@ Voir la fiche complète ouvre une fenêtre séparée : les cartes gardent leur t
 Les 21 notes sont regroupées et les notes hors simulation sont signalées séparément.
 Couleurs : faible (0–39), à développer (40–54), correct (55–69), bon (70–84),
 très bon (85–99). Les nombres et libellés accompagnent les couleurs.
+
+### Patch 015 — profils et génération
+
+Vingt profils descriptifs sur les cartes et dans les dossiers. Taille, corpulence
+et caractéristiques sont générées ensemble, avec quelques exceptions atypiques.
+Les joueurs déjà sauvegardés et les pochettes en cours sont préservés. Pour voir
+les nouveaux candidats de départ, créer une nouvelle carrière (cela remplace la
+partie locale après confirmation). Le détail et les limites de simulation sont
+précisés dans [les profils de jeu](docs/PLAYER_PROFILES.md).
+
+La revue produit maintenant `review/courtside-revue-015.zip`.

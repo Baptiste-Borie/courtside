@@ -149,6 +149,10 @@ try {
   await capture(page,'30-club-hub.png')
   await page.getByRole('button',{name:'Mon équipe',exact:true}).click()
   await page.getByRole('heading', { name: 'Votre équipe', exact: true }).waitFor()
+  const labels=await page.locator('.role-stamp').allTextContents()
+  if(!labels.length || labels.some(label=>!label.trim()))throw Error('Profil de jeu absent des cartes')
+  report.checks.push('Profils de jeu affichés sur les cartes')
+
   await capture(page, '01-roster.png')
   await page.getByRole('button', { name: 'Inscrire mon équipe' }).click()
   await page.getByRole('heading',{name:/Face à/}).waitFor()
@@ -186,6 +190,16 @@ try {
     await page.getByRole('button', { name: 'Avancer au prochain événement', exact: true }).click()
     await page.getByRole('button', { name: 'Jouer le prochain match' }).click()
   }
+  // Financer les actions suivantes par le jeu, sans dépendre des places obtenues.
+  for(let attempt=0;attempt<5;attempt++) {
+    const funds=await page.evaluate(()=>JSON.parse(localStorage.getItem('courtside.save.v1')).money)
+    if(funds>=350)break
+    await page.getByRole('button', { name: 'Participer au prochain tournoi' }).click()
+    for(let round=0;round<3;round++) {
+      await page.getByRole('button', { name: 'Avancer au prochain événement', exact: true }).click()
+      await page.getByRole('button', { name: 'Jouer le prochain match' }).click()
+    }
+  }
   await page.getByRole('button', { name: 'Scouting', exact: true }).click()
   await page.getByRole('button', { name: 'Lancer un scouting · 50 F', exact: true }).click()
   await capture(page, '10-scouting-pending.png')
@@ -204,7 +218,7 @@ try {
   for (const button of buttons) {
     if (await button.isEnabled()) { await button.click(); recruited = true; break }
   }
-  if (!recruited) throw Error('Aucun recrutement accessible après deux tournois')
+  if (!recruited) throw Error('Aucun recrutement accessible après les tournois')
   await page.getByRole('button', { name: 'Dans votre équipe', exact: true }).waitFor()
   await capture(page, '07-recruitment.png')
   await page.getByRole('button', { name: 'Mon équipe', exact: true }).click()
@@ -237,7 +251,7 @@ try {
   await capture(page, '14-circuit.png')
   const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('courtside.save.v1')))
   let current=await state()
-  if(current.career.history.length!==2 || current.career.reputation<=0) throw Error('Réputation ou palmarès absent après les tournois')
+  if(current.career.history.length<2 || current.career.reputation<=0) throw Error('Réputation ou palmarès absent après les tournois')
   const chooseCity=page.getByRole('button', {name:'Choisir cette compétition',exact:true}).nth(1)
   if(current.career.reputation<12 && await chooseCity.isEnabled()) throw Error('Circuit de ville accessible trop tôt')
   for(let attempt=0;current.career.reputation<12 && attempt<12;attempt++) {
@@ -351,7 +365,7 @@ try {
   await writeFile(new URL('report.json', output), json)
   const archive = { 'report.json': strToU8(json) }
   for (const name of report.captures) archive[name] = new Uint8Array(await readFile(new URL(name, output)))
-  await writeFile(new URL('courtside-revue-014.zip', output), zipSync(archive))
-  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-014.zip`)
+  await writeFile(new URL('courtside-revue-015.zip', output), zipSync(archive))
+  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-015.zip`)
   for (const error of report.errors) console.error(error)
 }

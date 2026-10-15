@@ -32,6 +32,8 @@ describe('match', () => {
   it('les qualités disponibles rendent les tactiques utiles', () => {
     for (const profile of ['fast', 'inside'] as const) {
       const team = generateTeam(121, 'a', 'A'), opponent = generateTeam(122, 'b', 'B')
+      // Scénario synthétique indépendant des spécialités du générateur.
+      for (const p of [...team.players,...opponent.players]) for(const key of Object.keys(p.attributes) as (keyof typeof p.attributes)[])p.attributes[key]=opponent.players.includes(p)?60:45
       for (const p of team.players) Object.assign(p.attributes, profile === 'fast'
         ? { speed:90, acceleration:90, stamina:85, passing:80, courtVision:80, layup:80 }
         : { insideScoring:90, postMoves:90, strength:90, layup:85, rebounding:85 })

@@ -43,3 +43,14 @@ it('conserve un camp en attente et migre les sauvegardes précédentes',()=>{
  const json=JSON.parse(JSON.stringify(old));delete json.calendar.trainingDay
  expect(decodeSave(JSON.stringify(json)).training).toBe(null)
 })
+
+it('migre une création 014 sans changer les joueurs déjà révélés',()=>{
+ const old={...game(),founding:{completed:false,phase:'packs',selected:[],opened:[0],revealed:['player-0']}}
+ const loaded=decodeSave(JSON.stringify(old))
+ expect(loaded.founding.generation).toBe(1)
+ expect(loaded.roster).toEqual(old.roster)
+ expect(loaded.scouting).toEqual(old.scouting)
+ expect(loaded.founding.revealed).toEqual(['player-0'])
+ expect(decodeSave(JSON.stringify(loaded))).toEqual(loaded)
+ expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:3}}))).toThrow()
+})
