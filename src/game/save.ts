@@ -86,7 +86,7 @@ export function decodeSave(text: string): Save {
   if(!record(f)||typeof f.completed!=='boolean'||!strings(f.selected)||f.selected.length>6||f.selected.some(id=>!foundingCandidates().some(player=>player.id===id)))throw Error('Sélection de départ invalide.')
   // Conserver les douze candidats des créations entamées avant le patch 015.
   if(!f.completed && f.generation===undefined)f.generation=1
-  if(f.generation!==undefined && f.generation!==1 && f.generation!==2 && f.generation!==3)throw Error('Génération de départ inconnue.')
+  if(f.generation!==undefined && f.generation!==1 && f.generation!==2 && f.generation!==3 && f.generation!==4)throw Error('Génération de départ inconnue.')
   // Le patch 011 montrait déjà les douze joueurs : ne pas les cacher à la migration.
   if(f.opened===undefined)f.opened=f.completed?[]:[0,1,2]
   if(f.revealed===undefined)f.revealed=f.completed?[]:foundingCandidates().map(player=>player.id)

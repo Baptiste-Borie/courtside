@@ -52,7 +52,7 @@ it('migre une création 014 sans changer les joueurs déjà révélés',()=>{
  expect(loaded.scouting).toEqual(old.scouting)
  expect(loaded.founding.revealed).toEqual(['player-0'])
  expect(decodeSave(JSON.stringify(loaded))).toEqual(loaded)
- expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:4}}))).toThrow()
+ expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:5}}))).toThrow()
 })
 
 it('conserve les postes et les emplacements vides, et reprend les anciens titulaires',()=>{
@@ -62,4 +62,14 @@ it('conserve les postes et les emplacements vides, et reprend les anciens titula
  expect(loaded.lineup).toBeUndefined()
  expect(loaded.selected).toEqual(old.selected)
  for(const lineup of [[s.selected[0],s.selected[0],null],['missing',null,s.selected[1]],[s.selected[1],null,s.selected[0]],[null,null,null]])expect(()=>decodeSave(JSON.stringify({...s,lineup}))).toThrow()
+})
+
+it('conserve les potentiels existants et la génération des boosters en cours',()=>{
+ for(const generation of [2,3,4] as const) {
+  const s=game();s.founding={completed:false,phase:'packs',generation,selected:[],opened:[0],revealed:['player-0']}
+  const loaded=decodeSave(JSON.stringify(s))
+  expect(loaded.founding).toEqual(s.founding)
+  expect(loaded.roster).toEqual(s.roster)
+  expect(loaded.scouting).toEqual(s.scouting)
+ }
 })

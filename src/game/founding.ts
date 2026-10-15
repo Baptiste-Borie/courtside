@@ -2,15 +2,15 @@ import { generateTeam } from './generate'
 import { generateLegacyTeam } from './legacy-generate'
 import type { Player } from './model'
 export type FoundingPhase = 'intro'|'identity'|'packs'|'selection'
-export interface Founding { phase?:FoundingPhase; generation?:1|2|3; completed: boolean; selected: string[]; opened: number[]; revealed: string[] }
-export function createFounding(): Founding { return { phase:'intro', generation:3, completed: false, selected: [], opened: [], revealed: [] } }
-export function foundingCandidates(generation:1|2|3=3): Player[] {
-  const generate=generation===1?generateLegacyTeam:(seed:number,id:string,name:string)=>generateTeam(seed,id,name,generation===2?2:3)
+export interface Founding { phase?:FoundingPhase; generation?:1|2|3|4; completed: boolean; selected: string[]; opened: number[]; revealed: string[] }
+export function createFounding(): Founding { return { phase:'intro', generation:4, completed: false, selected: [], opened: [], revealed: [] } }
+export function foundingCandidates(generation:1|2|3|4=4): Player[] {
+  const generate=generation===1?generateLegacyTeam:(seed:number,id:string,name:string)=>generateTeam(seed,id,name,generation===2?2:generation===3?3:4)
   const extra=[generate(1985,'founding-a',''),generate(1986,'founding-b','')].flatMap(team=>team.players)
   const initial=[0,1].flatMap(i=>generate(1983+i,`roster-${i}`,'').players).map((player,index)=>({...player,id:`player-${index}`,teamId:'club'}))
   return [...initial,...extra.map((player,index)=>({...player,id:`player-${index+6}`,teamId:'club'}))]
 }
-export function foundClub(name:string, ids:string[],generation:1|2|3=3) {
+export function foundClub(name:string, ids:string[],generation:1|2|3|4=4) {
   const candidates=foundingCandidates(generation)
   if(!name.trim() || name.trim().length>40)throw Error('Choisissez un nom de 1 à 40 caractères.')
   if(ids.length!==6 || new Set(ids).size!==6 || ids.some(id=>!candidates.some(player=>player.id===id)))throw Error('Choisissez six joueurs différents pour former votre effectif.')
@@ -18,7 +18,7 @@ export function foundClub(name:string, ids:string[],generation:1|2|3=3) {
   return {name:name.trim(),roster,selected:roster.slice(0,3).map(player=>player.id),founding:{completed:true,selected:[],opened:[],revealed:[]} satisfies Founding}
 }
 
-export function packCandidates(index:number,generation:1|2|3=3):Player[] {
+export function packCandidates(index:number,generation:1|2|3|4=4):Player[] {
  if(!Number.isInteger(index)||index<0||index>2)throw Error('Pochette inconnue.')
  return foundingCandidates(generation).slice(index*4,index*4+4)
 }

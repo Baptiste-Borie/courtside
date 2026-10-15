@@ -64,9 +64,9 @@ function dropOnPlayer(event:DragEvent,id:string){
 async function inspect(id:string){inspecting.value=id;await nextTick();dossier.value?.open()}
 </script>
 <template>
-<section class="lineup-board" aria-labelledby="lineup-title" @keydown.esc="cancel">
-  <header class="lineup-heading"><div><p class="eyebrow">{{ name }} / COMPOSITION</p><h2 id="lineup-title">Ton trois de départ.</h2></div><span class="lineup-count"><b>{{ selected.length }}</b> / 3 <small>sur le terrain</small></span></header>
-  <div class="lineup-instructions"><p v-if="armedPlayer"><strong>{{ armedPlayer.firstName }} {{ armedPlayer.lastName }}</strong> sélectionné. Choisis un poste ou un joueur à échanger.</p><p v-else>Glisse un joueur, ou sélectionne-le puis choisis son poste.</p><button v-if="armed" type="button" @click="cancel">Annuler</button></div>
+<section class="lineup-board roster-room" aria-labelledby="lineup-title" @keydown.esc="cancel">
+  <header class="lineup-heading"><div><p class="eyebrow">{{ name }} / COMPOSITION</p><h2 id="lineup-title">Le terrain est à toi.</h2></div><span class="lineup-count"><b>{{ selected.length }}</b> / 3 <small>sur le terrain</small></span></header>
+  <div class="lineup-instructions"><p v-if="armedPlayer"><strong>{{ armedPlayer.firstName }} {{ armedPlayer.lastName }}</strong> sélectionné. Choisis un poste ou un joueur à échanger.</p><p v-else>Titulaire ↔ remplaçant : glisse un portrait ou sélectionne deux joueurs.</p><button v-if="armed" type="button" @click="cancel">Annuler</button></div>
   <div class="lineup-layout">
     <div class="lineup-court" aria-label="Terrain de composition 3 contre 3">
       <CourtMarkings />
@@ -86,7 +86,7 @@ async function inspect(id:string){inspecting.value=id;await nextTick();dossier.v
 
     </aside>
   </div>
-  <p class="lineup-notice" role="status">{{ notice || (selected.length<3?'Complète les trois postes avant de rejoindre le tournoi.':'Trois joueurs en place. À toi de trouver l’alchimie.') }}</p>
+  <p class="lineup-notice" role="status">{{ notice || (selected.length<3?'Complète les trois postes avant de rejoindre le tournoi.':'Trois titulaires. Une équipe à faire grandir.') }}</p>
   <button class="lineup-help" @click="help?.open()">Comment composer ?</button>
   <GameDialog ref="help" title="Composer ton équipe"><p>Glisse un joueur du banc sur un poste pour remplacer le titulaire. Déplace un titulaire sur un autre pour les échanger, ou vers le banc pour le sortir.</p><p>Au clic, au toucher ou au clavier : sélectionne un joueur, puis le poste ou le joueur à échanger. Annuler ou Échap abandonne la sélection.</p><p>Les postes sont libres. Les caractéristiques et le gabarit déterminent les performances. Au-delà de 20 de fatigue, un joueur perd en efficacité.</p></GameDialog>
   <PlayerDossier v-if="inspected" ref="dossier" :player="inspected" :year="year" />

@@ -1,11 +1,11 @@
 import { attributeLabels, type Attributes, type Attribute, type Position, type Team } from './model'
-import { potentialForAge } from './potential'
+import { potentialForAge, potentialForTalent } from './potential'
 import { pickWeighted, random } from './random'
 import { playProfiles, profileOffset, profilePositionWeight } from './profiles'
 const firstNames = ['Alain', 'Karim', 'Luc', 'Patrick', 'Éric', 'Marc', 'Jean', 'Malik', 'Pascal', 'David', 'Thierry', 'Nicolas']
 const lastNames = ['Martin', 'Diallo', 'Bernard', 'Moreau', 'Petit', 'Leroy', 'Laurent', 'Roux', 'Benali', 'Simon', 'Dubois', 'Durand']
 const clamp=(value:number,min:number,max:number)=>Math.max(min,Math.min(max,value))
-export function generateTeam(seed:number,id:string,name:string,generation:2|3=3):Team {
+export function generateTeam(seed:number,id:string,name:string,generation:2|3|4=4):Team {
   const rng=random(seed)
   const integer=(min:number,max:number)=>min+Math.floor(rng()*(max-min+1))
   return {id,name,players:Array.from({length:3},(_,i)=>{
@@ -29,8 +29,15 @@ export function generateTeam(seed:number,id:string,name:string,generation:2|3=3)
     const signature=profile.strengths[0]!
     attributes[signature]=Math.max(73,attributes[signature])
     const overall=Math.round(Object.values(attributes).reduce((a,b)=>a+b,0)/Object.keys(attributes).length)
-    const firstName=firstNames[integer(0,firstNames.length-1)]!,lastName=lastNames[integer(0,lastNames.length-1)]!,age=integer(18,34),draw=rng()
-    const potential=generation===2?overall+Math.floor(draw*(100-overall)):potentialForAge(overall,age,draw)
-    return {id:`${id}-${i}`,firstName,lastName,birthYear:1983-age,height,weight,position,secondaryPositions:[],teamId:id,attributes,overall,potential,fatigue:0,healthy:true}
+    const firstName=firstNames[integer(0,firstNames.length-1)]!,lastName=lastNames[integer(0,lastNames.length-1)]!,age=integer(generation===4?16:18,34),draw=rng()
+    // Les phénomènes restent rares et peuvent avoir un profil très spécialisé.
+    if(generation===4) {
+      const breakthrough=rng()
+      if(breakthrough<.02)attributes[signature]=integer(95,98)
+      if(breakthrough<.004 && profile.strengths[1])attributes[profile.strengths[1]]=integer(95,98)
+    }
+    const finalOverall=generation===4?Math.round(Object.values(attributes).reduce((a,b)=>a+b,0)/Object.keys(attributes).length):overall
+    const potential=generation===4?potentialForTalent(finalOverall,age,attributes,draw):generation===2?overall+Math.floor(draw*(100-overall)):potentialForAge(overall,age,draw)
+    return {id:`${id}-${i}`,firstName,lastName,birthYear:1983-age,height,weight,position,secondaryPositions:[],teamId:id,attributes,overall:finalOverall,potential,fatigue:0,healthy:true}
   })}
 }

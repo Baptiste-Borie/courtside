@@ -42,3 +42,7 @@ Les joueurs déjà sauvegardés gardent leurs valeurs. Les créations commencée
 avant ce patch gardent leurs candidats et leurs potentiels via les générations
 1 et 2. Les nouvelles créations utilisent la génération 3, tout comme les nouveaux
 adversaires et pools de scouting.
+
+Le patch 019 remplace ce calcul pour les nouveaux joueurs par un modèle de talent,
+précocité et paliers de maturité : voir [POTENTIAL.md](POTENTIAL.md). La génération 3
+reste inchangée pour les créations déjà commencées.

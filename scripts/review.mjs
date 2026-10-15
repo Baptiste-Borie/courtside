@@ -19,11 +19,13 @@ async function fit(){
   const outside=[...scope.querySelectorAll('button,input,select,.player-card,.lineup-token,.founding-confirm')].filter(el=>{const b=el.getBoundingClientRect();return b.width>0&&b.height>0&&(b.left<-.75||b.top<-.75||b.right>innerWidth+.75||b.bottom>innerHeight+.75)}).map(el=>`${el.tagName}.${el.className}: ${el.textContent.trim().slice(0,35)}`)
   const covered=[...scope.querySelectorAll('button,input,select')].filter(el=>{const b=el.getBoundingClientRect();if(b.width<=0||b.height<=0)return false;const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return hit&&!el.contains(hit)&&!hit.contains(el)}).map(el=>el.textContent.trim().slice(0,35)||el.getAttribute('aria-label')||el.tagName)
   const outsideCourt=[...scope.querySelectorAll('.lineup-slot')].filter(el=>{const b=el.getBoundingClientRect(),court=el.closest('.lineup-court').getBoundingClientRect();return b.left<court.left-1||b.top<court.top-1||b.right>court.right+1||b.bottom>court.bottom+1}).map(el=>el.dataset.slot)
+  const benchTokens=[...scope.querySelectorAll('.lineup-bench .lineup-token')].map(el=>el.getBoundingClientRect())
+  const benchOverlap=benchTokens.some((a,index)=>benchTokens.slice(index+1).some(b=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1))
   const containers=modal?[modal,...modal.querySelectorAll('.game-dialog-content,.dossier-content')]:[...document.querySelectorAll('.game-stage,.screen-panel,.flow-main,.booster-section')]
   const clipped=containers.filter(el=>el.getClientRects().length&&el.scrollHeight>el.clientHeight+3).map(el=>`${el.className} (${el.scrollHeight}/${el.clientHeight})`)
-  return {outside,clipped,covered,outsideCourt,scroll:document.documentElement.scrollHeight,height:innerHeight}
+  return {outside,clipped,covered,outsideCourt,benchOverlap,scroll:document.documentElement.scrollHeight,height:innerHeight}
  })
- if(result.outside.length||result.clipped.length||result.covered.length||result.outsideCourt.length||result.scroll>result.height+1)throw Error(`Écran hors cadre : ${JSON.stringify(result)}`)
+ if(result.benchOverlap||result.outside.length||result.clipped.length||result.covered.length||result.outsideCourt.length||result.scroll>result.height+1)throw Error(`Écran hors cadre : ${JSON.stringify(result)}`)
 }
 async function capture(label){
  const filename=`${String(++sequence).padStart(2,'0')}-${label}.png`
@@ -76,6 +78,9 @@ try {
  report.checks.push('Menu, création par étapes, pochettes, révélation et sélection dans la fenêtre à six résolutions')
  report.checks.push('Fiches paginées : les 21 notes restent accessibles sans défilement')
  await button('Mon équipe').click();await allSizes('team')
+ if(await page.locator('.lineup-slot .player-avatar').count()!==3)throw Error('Portraits des titulaires absents')
+ const portrait=await page.locator('.lineup-slot[data-slot="G"] .player-avatar').getAttribute('data-appearance')
+ await page.locator('.lineup-slot[data-slot="G"] .lineup-token-footer button').click();await allSizes('roster-dossier');if(await page.locator('.player-dossier[open] .player-avatar').getAttribute('data-appearance')!==portrait)throw Error('Portrait différent dans la fiche');await button('Fermer la fiche').click()
  const composition=(await state()).lineup,benchId=await page.locator('.lineup-bench .lineup-token').first().getAttribute('data-player-id')
  const slot=position=>page.locator(`.lineup-slot[data-slot="${position}"]`),token=id=>page.locator(`.lineup-token[data-player-id="${id}"]`)
  await token(benchId).dragTo(slot('G'));await page.waitForFunction(id=>JSON.parse(localStorage.getItem('courtside.save.v1')).lineup[0]===id,benchId)
@@ -89,14 +94,16 @@ try {
  await button('Tactique · Équilibrée ⚙').click();await allSizes('preparation');await page.getByRole('combobox',{name:'Tactique',exact:true}).selectOption('inside');await button('Fermer Préparer le match').click()
  report.checks.push('Composition : échanges par glisser-déposer, clavier, poste vide bloquant et tactique en modale')
  await button('Inscrire mon équipe').click();await allSizes('preview')
- await button('Lire les profils').click();await allSizes('profile-help');await button('Fermer Lire les profils').click();
+ await button('Comparer les équipes ↗').click();await allSizes('profile-help');await button('Fermer Comparer les équipes').click();
  await button('Voir les trois adversaires').click();await allSizes('opponents');await button('Adversaires : suivant').click();await capture('opponent-next');await button('Fermer Les adversaires').click()
- for(let round=0;round<3;round++){await button('Avancer au prochain événement').click();await button('Jouer le prochain match').click();if(round===0){await allSizes('match');await button('Bilan détaillé du match ↗').click();await allSizes('report');await button('Jeu collectif').click();await allSizes('report-collective');await button('Fermer Bilan du dernier match').click()}}
+ for(let round=0;round<3;round++){await button('Avancer au prochain événement').click();await button('Jouer le prochain match').click();if(round===0){await allSizes('match');await button('Bilan détaillé du match ↗').click();await allSizes('report');await button('Jeu collectif').click();await allSizes('report-collective');await button('Fermer Bilan du match').click()}}
  await button('Classement').click();await allSizes('standings');await button('Tous les résultats ↗').click();await allSizes('all-results');await button('Fermer Résultats du tournoi').click()
+ const beforeAgenda=JSON.stringify(await state());await page.locator('.agenda-game').first().click();await allSizes('calendar-first-result');if(!await page.locator('.result-room').count())throw Error('Bilan du premier match absent');if(JSON.stringify(await state())!==beforeAgenda)throw Error('Consulter un ancien résultat modifie la partie');await page.locator('.agenda-game').nth(1).click();await capture('calendar-second-result');
  if((await state()).career.history.length!==1)throw Error('Récompense non enregistrée')
  await button('Mon équipe').click()
  for(let attempt=0;(await state()).money<350&&attempt<5;attempt++)await playTournament()
- report.checks.push('Tournois joués, comparaison adverse, bilan et classement sur vues séparées')
+ report.checks.push('Calendrier : dates, scores et consultation des anciens matchs sans rejouer ni modifier la sauvegarde')
+ report.checks.push('Portraits cohérents sur le terrain et dans les fiches ; composition et tournois joués')
  await button('Scouting').click();await allSizes('scout-empty');await button('Lancer un scouting · 50 F').click();await allSizes('scout-pending');await button('Avancer au prochain événement').click()
  for(let i=0;i<3;i++)await button('Révéler le prochain dossier').click()
  await allSizes('scout-revealed');await button('Terminer la campagne').click();await allSizes('scout-dossiers')
@@ -138,7 +145,7 @@ finally {
  if(browser)await browser.close();if(server)await server.close()
  await writeFile(new URL('report.json',output),JSON.stringify(report,null,2))
  const archive={'report.json':strToU8(JSON.stringify(report,null,2))};for(const name of report.captures)archive[name]=await readFile(new URL(name,output))
- await writeFile(new URL('courtside-revue-018.zip',output),zipSync(archive))
- console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-018.zip`)
+ await writeFile(new URL('courtside-revue-020.zip',output),zipSync(archive))
+ console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-020.zip`)
  if(report.status!=='passed')process.exitCode=1
 }

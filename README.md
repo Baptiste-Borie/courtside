@@ -254,3 +254,13 @@ et les pochettes entamées conservent leurs valeurs.
 Voir [le contrat des écrans et du potentiel](docs/GAME_WINDOW.md).
 `npm run review` joue une carrière isolée et produit `review/courtside-revue-018.zip`.
 La revue teste aussi les petits écrans et le mode paysage.
+
+Patch 019 : potentiel fondé sur le talent et la précocité, prospects dès 16 ans,
+rares qualités exceptionnelles et préservation des générations précédentes.
+Voir [les règles du potentiel](docs/POTENTIAL.md). La revue produit
+`review/courtside-revue-019.zip`.
+
+Patch 020 : portraits illustrés stables, écran Mon équipe retravaillé, calendrier
+des rencontres et nouveaux écrans d'avant-match et de résultats. Compatible avec
+les parties en cours. Voir [les détails](docs/PLAYER_IDENTITY_AND_MATCHES.md).
+La revue produit `review/courtside-revue-020.zip`.

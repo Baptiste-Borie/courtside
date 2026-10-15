@@ -26,3 +26,18 @@ La revue du prototype 001 a validé les captures ; le joueur souhaite avancer ve
 - Patch 017 : demi-cercle de la ligne médiane recentré, cercles non étirés et contrôle géométrique dans la revue ordinateur/mobile.
 - Patch 018 : potentiel lié à l'âge avec exceptions, écrans dans la fenêtre sans défilement de page, détails dans des modales et vues paginées, barre d'action persistante. Revue de carrière aux six résolutions.
 - Idées à examiner après le test de cette boucle : comparaison titulaire/remplaçant au moment de composer, indication de marge de progression et rappels de fatigue avant un match. Ces idées ne sont pas encore implémentées.
+
+### Patch 019 — Talent et précocité
+
+- Potentiel global fondé sur les qualités de basket, le développement individuel
+  et des paliers de maturité, avec minima pour les phénomènes précoces.
+- Joueurs dès 16 ans et rares qualités signature à 95–98.
+- Générations et valeurs sauvegardées conservées ; aucun bonus de match lié au potentiel.
+
+### Patch 020 — Identifier son groupe et suivre les rencontres
+
+- Portraits illustrés cohérents dans les boosters, l'effectif, les fiches et les matchs.
+- Terrain et rotation retravaillés en conservant les échanges et la navigation clavier.
+- Calendrier des trois rencontres, accès aux résultats antérieurs et avant-match centré
+  sur les équipes, les joueurs et le plan de jeu.
+- Sauvegardes et règles de simulation conservées.
