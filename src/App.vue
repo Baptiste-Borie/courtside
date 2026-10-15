@@ -100,12 +100,14 @@ function hire(id:string) {
  catch(e) {error.value=(e as Error).message}
 }
 function pickFounder(id:string) {
+ if(founding.value.revealed.length!==12)return
  const ids=founding.value.selected
- founding.value={completed:false,selected:ids.includes(id)?ids.filter(value=>value!==id):ids.length<6?[...ids,id]:ids}
+ founding.value={...founding.value,completed:false,selected:ids.includes(id)?ids.filter(value=>value!==id):ids.length<6?[...ids,id]:ids}
  error.value=''
 }
 function confirmFounding() {
  try {
+  if(founding.value.revealed.length!==12)throw Error('Dévoilez les douze joueurs avant de composer votre effectif.')
   const club=foundClub(name.value,founding.value.selected)
   name.value=club.name;roster.value=club.roster;selected.value=club.selected;trainingPlayer.value=club.roster[0]!.id
   founding.value=club.founding;screen.value='team';error.value=''
@@ -114,7 +116,7 @@ function confirmFounding() {
 function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?.name}
 </script>
 <template>
-  <FoundingScreen v-if="!founding.completed" v-model:name="name" :founding="founding" :save-status="saveStatus" :error="error" @pick="pickFounder" @confirm="confirmFounding" @restart="newGame" />
+  <FoundingScreen v-if="!founding.completed" v-model:name="name" v-model:founding="founding" :save-status="saveStatus" :error="error" @pick="pickFounder" @confirm="confirmFounding" @restart="newGame" />
   <div v-else class="game-shell">
   <aside class="game-rail"><div class="brand"><svg class="brand-ball" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="currentColor"/><path d="M2 16h28M16 2v28M6 6c14 7 14 13 0 20M26 6c-14 7-14 13 0 20" fill="none" stroke="#19251f" stroke-width="1.5"/></svg> COURTSIDE<span class="brand-edition">1983</span></div><p class="rail-caption">DU BITUME AUX SOMMETS</p>
   <nav class="mode-nav" aria-label="Sections du jeu"><button @click="screen='team'" :aria-pressed="screen==='team'">Mon équipe</button><button @click="screen='tournament'" :aria-pressed="screen==='tournament'">Tournoi</button><button @click="screen='scouting'" :aria-pressed="screen==='scouting'">Scouting</button><button @click="screen='training'" :aria-pressed="screen==='training'">Entraînement</button><button @click="screen='circuit'" :aria-pressed="screen==='circuit'">Circuit</button><button @click="screen='lab'" :aria-pressed="screen==='lab'">Laboratoire</button></nav><div class="rail-club"><span class="eyebrow">VOTRE CLUB</span><strong>{{ name }}</strong><span>{{ roster.length }} joueurs · {{ career.reputation }} réputation</span></div><p class="rail-footer">FRANCE / SAISON {{ currentYear }}<br>UNE CARRIÈRE À CONSTRUIRE.</p></aside>

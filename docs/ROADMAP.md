@@ -13,7 +13,8 @@
 - Patch 009 : trois compétitions, déblocage par réputation et palmarès sauvegardé.
 - Patch 010 : aperçu adverse, comparaison des formations, explication des tactiques, bilan du match et palmarès mobile.
 - Patch 011 : première direction visuelle playground, introduction 1983 et sélection initiale de six joueurs parmi douze.
-- Prochaines étapes : revue visuelle 011 et ajustements avant une première session de jeu.
+- Patch 012 : trois pochettes animées, cartes face cachée, retournement individuel et révélation globale sauvegardée.
+- Prochaines étapes : revue des pochettes puis premier retour utilisateur sur le début de carrière.
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.

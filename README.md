@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 011
+## Prototype 012
 
 Début de carrière : six joueurs à choisir parmi douze candidats, puis trois titulaires et tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-011.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-012.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -168,3 +168,18 @@ La nouvelle interface utilise une palette encre/orange, des illustrations de ter
 et des maillots en SVG, ainsi que des cartes joueurs avec profils et barres de forces.
 Aucune image, police distante ou nouvelle dépendance n’est nécessaire.
 La revue ajoute les captures de l’introduction, du choix mobile et teste la migration.
+
+## Pochettes du playground
+
+Une nouvelle carrière propose trois pochettes gratuites de quatre joueurs.
+L’ouverture anime la pochette et fait apparaître quatre cartes face cachée.
+Chaque carte se retourne au clic. Tout dévoiler ouvre les trois pochettes et
+révèle les douze profils ; Composer mon effectif mène ensuite au choix des six.
+Les joueurs sont définis avant l’ouverture, sans tirage ou coût supplémentaire.
+
+Pochettes ouvertes et cartes retournées sont sauvegardées au fur et à mesure.
+Recommencer la sélection réinitialise aussi les pochettes après confirmation.
+Les sélections déjà commencées au patch 011 gardent leurs douze profils visibles.
+Les carrières déjà créées poursuivent normalement leur partie.
+Les animations respectent la préférence de réduction des mouvements.
+La revue vérifie retournement individuel, reprise, révélation globale et mobile.

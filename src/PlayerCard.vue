@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import type { Attribute, Player } from './game/model'
 import { attributeLabels } from './game/model'
 import { inactiveAttributes, teamProfile } from './game/analysis'
-const props=withDefaults(defineProps<{player:Player;year?:number;index?:number;chosen?:boolean;mode?:'draft'|'roster'|'scout';disabled?:boolean;cost?:number;hired?:boolean}>(),{year:1983,index:0,chosen:false,mode:'roster',disabled:false,hired:false})
+const props=withDefaults(defineProps<{player:Player;year?:number;index?:number;chosen?:boolean;mode?:'draft'|'roster'|'scout'|'reveal';disabled?:boolean;cost?:number;hired?:boolean}>(),{year:1983,index:0,chosen:false,mode:'roster',disabled:false,hired:false})
 defineEmits<{toggle:[];hire:[]}>()
 const profile=computed(()=>teamProfile({id:'profile',name:'',players:Array.from({length:3},()=>({...props.player,fatigue:0}))}))
 const specialty=computed(()=>[...profile.value].sort((a,b)=>b.value-a.value)[0]!)
@@ -19,7 +19,7 @@ const roles:Record<string,string>={outside:'Tireur',inside:'Finisseur',creation:
     <details class="player-details"><summary>Caractéristiques complètes</summary><dl><div v-for="(label,key) in attributeLabels" :key="key"><dt>{{ label }}<span v-if="inactiveAttributes.includes(key)" class="inactive-note"> · hors simulation</span></dt><dd>{{ player.attributes[key] }}</dd></div></dl></details>
     <button v-if="mode==='draft'" class="draft-pick" :class="{primary:chosen}" :aria-pressed="chosen" :disabled="disabled" @click="$emit('toggle')">{{ chosen?'Retirer de l’effectif':'Choisir ce joueur' }}</button>
     <label v-else-if="mode==='roster'" class="selection"><input type="checkbox" :checked="chosen" :disabled="disabled" @change="$emit('toggle')" /><span>{{ chosen?'Dans le trois de départ':'Placer dans le trois' }}</span></label>
-    <button v-else :disabled="disabled||hired" @click="$emit('hire')">{{ hired?'Dans votre équipe':`Recruter · ${cost} F` }}</button>
+    <button v-else-if="mode==='scout'" :disabled="disabled||hired" @click="$emit('hire')">{{ hired?'Dans votre équipe':`Recruter · ${cost} F` }}</button>
   </div>
 </article>
 </template>

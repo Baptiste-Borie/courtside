@@ -82,6 +82,11 @@ export function decodeSave(text: string): Save {
   if(x.founding===undefined)x.founding={completed:true,selected:[]}
   const f=x.founding
   if(!record(f)||typeof f.completed!=='boolean'||!strings(f.selected)||f.selected.length>6||f.selected.some(id=>!foundingCandidates().some(player=>player.id===id)))throw Error('Sélection de départ invalide.')
+  // Le patch 011 montrait déjà les douze joueurs : ne pas les cacher à la migration.
+  if(f.opened===undefined)f.opened=f.completed?[]:[0,1,2]
+  if(f.revealed===undefined)f.revealed=f.completed?[]:foundingCandidates().map(player=>player.id)
+  if(!Array.isArray(f.opened)||new Set(f.opened).size!==f.opened.length||!f.opened.every(index=>integer(index,0,2))||!strings(f.revealed)||f.revealed.some(id=>!foundingCandidates().some((player,index)=>player.id===id&&(f.opened as number[]).includes(Math.floor(index/4)))))throw Error('Pochettes de départ invalides.')
+  if(!f.completed&&f.selected.length>0&&f.revealed.length!==12)throw Error('Dévoilez les joueurs avant de choisir votre effectif.')
   if(f.completed&&f.selected.length!==0)throw Error('Sélection de départ déjà terminée.')
   if(!f.completed&&(x.edition!==0||x.tournament!==null||x.money!==0||c.day!==0||x.training!==null||s.campaign!==null))throw Error('Début de carrière incohérent.')
   return x as unknown as Save

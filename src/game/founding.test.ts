@@ -26,7 +26,7 @@ it('refuse un effectif incomplet, des doublons, des inconnus et un nom vide',()=
  expect(()=>foundClub('   ',ids)).toThrow()
 })
 it('reprend une sélection incomplète et une équipe composée avec les derniers candidats',()=>{
- const save=initial();save.founding.selected=['player-7','player-11'];save.name='Les Docks'
+ const save=initial();save.founding={...save.founding,opened:[0,1,2],revealed:foundingCandidates().map(player=>player.id),selected:['player-7','player-11']};save.name='Les Docks'
  expect(decodeSave(JSON.stringify(save))).toEqual(save)
  const club=foundClub(save.name,foundingCandidates().slice(6).map(player=>player.id))
  const ready={...save,...club}
@@ -36,7 +36,7 @@ it('reprend une sélection incomplète et une équipe composée avec les dernier
 it('préserve une ancienne partie sans imposer la sélection initiale',()=>{
  const save=initial(),old=JSON.parse(JSON.stringify(save));delete old.founding
  const loaded=decodeSave(JSON.stringify(old))
- expect(loaded.founding).toEqual({completed:true,selected:[]})
+ expect(loaded.founding).toEqual({completed:true,selected:[],opened:[],revealed:[]})
  expect(loaded.roster).toEqual(save.roster)
  expect(loaded.money).toBe(save.money)
  expect(loaded.selected).toEqual(save.selected)

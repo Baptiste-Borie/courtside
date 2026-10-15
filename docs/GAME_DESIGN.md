@@ -121,3 +121,13 @@ La sélection incomplète est sauvegardée ; confirmation à six joueurs exactem
 Les trois premiers sont titulaires par défaut, les trois autres sur le banc.
 La sélection est propre aux nouvelles parties ; les sauvegardes précédentes sont préservées.
 Direction visuelle : playground, encre sombre et orange, cartes joueurs et terrains graphiques.
+
+
+## Prototype 012 — découverte des premiers joueurs
+
+Trois pochettes de quatre fiches précèdent le choix de l’effectif. Les douze joueurs
+sont déjà définis ; ouvrir ou retourner une carte ne change jamais son contenu.
+Ouverture animée, cartes face cachée, retournement individuel et bouton global
+Tout dévoiler. Après découverte, Composer mon effectif affiche les douze candidats.
+Pas de prix, rareté ou nouveaux attributs. Révélations sauvegardées ; les sélections
+anciennes conservent les profils qu’elles voyaient déjà. Le visuel 3×3 est conservé.

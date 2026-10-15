@@ -6,7 +6,7 @@ import { createRoster, playRound, startTournament } from './tournament'
 import { createScouting, launchScouting, revealNext, recruit } from './scouting'
 function game(): Save {
  const roster=createRoster(1983)
- return {version:1,founding:{completed:true,selected:[]},career:createCareer(),training:null,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
+ return {version:1,founding:{completed:true,selected:[],opened:[],revealed:[]},career:createCareer(),training:null,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
 }
 it('reprend une partie avec tournoi en cours et recrutement',()=>{
  const s=game();s.edition=1;s.tournament=playRound(startTournament(1983,s.roster,s.selected,s.name),s.roster,s.selected,'inside')
