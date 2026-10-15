@@ -1,8 +1,8 @@
 import { hasVisibleDetail } from './png-check.mjs'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
-import { zipSync, strToU8 } from 'fflate'
-import { mkdir,readFile,writeFile } from 'node:fs/promises'
+import { archiveReview } from './review-archive.mjs'
+import { mkdir,writeFile } from 'node:fs/promises'
 import { dirname,join } from 'node:path'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
@@ -144,8 +144,7 @@ try {
 finally {
  if(browser)await browser.close();if(server)await server.close()
  await writeFile(new URL('report.json',output),JSON.stringify(report,null,2))
- const archive={'report.json':strToU8(JSON.stringify(report,null,2))};for(const name of report.captures)archive[name]=await readFile(new URL(name,output))
- await writeFile(new URL('courtside-revue-020.zip',output),zipSync(archive))
- console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-020.zip`)
+ const removed=await archiveReview(output,'courtside-revue-021.zip',report)
+ console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-021.zip · ${removed} PNG nettoyés`)
  if(report.status!=='passed')process.exitCode=1
 }

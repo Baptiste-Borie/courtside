@@ -264,3 +264,8 @@ Patch 020 : portraits illustrés stables, écran Mon équipe retravaillé, calen
 des rencontres et nouveaux écrans d'avant-match et de résultats. Compatible avec
 les parties en cours. Voir [les détails](docs/PLAYER_IDENTITY_AND_MATCHES.md).
 La revue produit `review/courtside-revue-020.zip`.
+
+Patch 021 : après écriture et vérification du ZIP de revue, les captures PNG du
+script sont supprimées de `review/`, y compris les anciennes captures. Le rapport
+JSON et les ZIP sont conservés. En cas d'échec de création de l'archive, les PNG
+restent disponibles. La revue produit `review/courtside-revue-021.zip`.
