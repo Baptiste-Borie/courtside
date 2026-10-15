@@ -236,3 +236,9 @@ parties conservent leurs titulaires. Détails : [composition](docs/TEAM_LINEUP.m
 
 La revue produit `review/courtside-revue-016.zip`, dont deux nouvelles captures du
 terrain et des vérifications d'échanges, d'emplacements libres et de reprise.
+
+### Patch 017 — tracés du terrain
+
+Le demi-cercle de la ligne médiane est recentré. Les tracés suivent la taille du
+terrain sans étirer les cercles sur ordinateur et mobile. La revue vérifie leur
+centrage et leurs proportions, et produit `review/courtside-revue-017.zip`.

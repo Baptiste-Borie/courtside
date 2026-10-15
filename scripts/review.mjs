@@ -25,6 +25,22 @@ async function resumeCareer(page) {
   await page.locator('.game-menu').waitFor({state:'hidden'})
   if(await page.getByRole('heading',{name:'Le club',exact:true}).count())await page.getByRole('button',{name:'Mon équipe',exact:true}).click()
 }
+async function checkCourt(page) {
+  await page.waitForFunction(()=>{
+    const svg=document.querySelector('.lineup-court-lines')
+    if(!svg)return false
+    const box=svg.getBoundingClientRect(),view=svg.viewBox.baseVal
+    return Math.abs(box.width-view.width)<1&&Math.abs(box.height-view.height)<1
+  })
+  const correct=await page.locator('.lineup-court-lines').evaluate(svg=>{
+    const arc=svg.querySelector('.court-center-arc'),circle=svg.querySelector('.court-free-throw-circle')
+    const width=svg.viewBox.baseVal.width,height=svg.viewBox.baseVal.height
+    const cx=Number(arc.dataset.centerX),cy=Number(arc.dataset.centerY),radius=Number(arc.dataset.radius)
+    const bounds=circle.getBoundingClientRect()
+    return Math.abs(cx-width/2)<1&&Math.abs(cy-height*25/26)<1&&Math.abs(bounds.width-bounds.height)<1&&arc.getAttribute('d')===`M${cx-radius} ${cy}A${radius} ${radius} 0 0 1 ${cx+radius} ${cy}`
+  })
+  if(!correct)throw Error('Demi-cercle mal centré ou tracé déformé')
+}
 async function capture(page, filename, fullPage = true) {
   if(fullPage)await page.evaluate(()=>window.scrollTo(0,0))
   const pixels=await page.screenshot({ path: fileURLToPath(new URL(filename, output)), fullPage, animations: 'disabled' })
@@ -178,12 +194,15 @@ try {
   await page.getByRole('dialog').waitFor()
   if(await page.locator('.player-dossier .attribute-row').count()!==21)throw Error('Fiche depuis le terrain incomplète')
   await page.getByRole('button',{name:'Fermer la fiche',exact:true}).click()
+  await checkCourt(page)
   await capture(page,'33-lineup-desktop.png')
   await page.setViewportSize({width:390,height:844})
   await token(substitute).locator('.lineup-select').click()
   await slot('W').locator('.lineup-select').click()
   await page.waitForFunction(id=>JSON.parse(localStorage.getItem('courtside.save.v1')).lineup[1]===id,substitute)
   if(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1))throw Error('Composition mobile débordante')
+  await checkCourt(page)
+  report.checks.push('Demi-cercle centré et cercles non étirés sur ordinateur et mobile')
   await capture(page,'34-lineup-mobile.png')
   await token(composition[1]).locator('.lineup-select').click()
   await slot('W').locator('.lineup-select').click()
@@ -407,7 +426,7 @@ try {
   await writeFile(new URL('report.json', output), json)
   const archive = { 'report.json': strToU8(json) }
   for (const name of report.captures) archive[name] = new Uint8Array(await readFile(new URL(name, output)))
-  await writeFile(new URL('courtside-revue-016.zip', output), zipSync(archive))
-  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-016.zip`)
+  await writeFile(new URL('courtside-revue-017.zip', output), zipSync(archive))
+  console.log(`Revue ${report.status} : ${report.captures.length} captures. ZIP : review/courtside-revue-017.zip`)
   for (const error of report.errors) console.error(error)
 }

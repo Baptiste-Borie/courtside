@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import type { Player } from './game/model'
 import { lineupPositions, placePlayer, selectedFromLineup, sendToBench, type Lineup } from './game/lineup'
 import LineupToken from './LineupToken.vue'
+import CourtMarkings from './CourtMarkings.vue'
 import PlayerDossier from './PlayerDossier.vue'
 const props=defineProps<{roster:Player[];lineup:Lineup;year:number;name:string}>()
 const emit=defineEmits<{'update:lineup':[value:Lineup]}>()
@@ -59,7 +60,7 @@ async function inspect(id:string){inspecting.value=id;await nextTick();dossier.v
   <div class="lineup-instructions"><p v-if="armedPlayer"><strong>{{ armedPlayer.firstName }} {{ armedPlayer.lastName }}</strong> sélectionné. Choisis un poste ou un joueur à échanger.</p><p v-else>Glisse un joueur sur le terrain pour le titulariser. Tu peux aussi sélectionner un joueur puis son emplacement.</p><button v-if="armed" type="button" @click="cancel">Annuler</button></div>
   <div class="lineup-layout">
     <div class="lineup-court" aria-label="Terrain de composition 3 contre 3">
-      <svg class="lineup-court-lines" viewBox="0 0 600 650" preserveAspectRatio="none" aria-hidden="true"><path d="M25 25h550v600H25zM220 25v200h160V25M65 25v145a250 250 0 0 0 470 0V25"/><circle cx="300" cy="225" r="75"/><path d="M265 65h70M300 65v15M25 625a75 75 0 0 1 150 0"/><circle cx="300" cy="92" r="13"/></svg>
+      <CourtMarkings />
       <span class="lineup-court-brand" aria-hidden="true">3×3<span>COURTSIDE PLAYGROUND</span></span>
       <div v-for="(slot,index) in lineupPositions" :key="slot.position" class="lineup-slot" :class="[`slot-${slot.position}`,{'is-drop-target':hover===index,'is-empty':!playerAt(index)}]" :data-slot="slot.position" @dragover="over($event,index)" @dragleave="hover===index&&(hover=null)" @drop.stop="drop($event,index)">
         <div class="lineup-slot-title"><span>{{ String(index+1).padStart(2,'0') }}</span><strong>{{ slot.label }}</strong><button v-if="playerAt(index)" type="button" :aria-label="`Mettre ${playerAt(index)!.firstName} ${playerAt(index)!.lastName} sur le banc`" @click="benchOut(playerAt(index)!.id)">−</button></div>
