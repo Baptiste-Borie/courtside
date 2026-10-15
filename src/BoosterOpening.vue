@@ -17,7 +17,7 @@ function all() {opening.value=null;emit('update:founding',revealAll(props.foundi
 function animationDone(event:AnimationEvent) {if(event.target===event.currentTarget)opening.value=null}
 </script>
 <template>
-<section class="booster-section" aria-labelledby="booster-heading" :data-opening="opening!==null">
+<section class="booster-section" :class="{'has-open':founding.opened.includes(active)&&opening===null}" aria-labelledby="booster-heading" :data-opening="opening!==null">
   <div class="booster-heading"><div><p class="eyebrow">LES DOSSIERS DU PLAYGROUND</p><h2 id="booster-heading">Des rencontres.<br>Une équipe à inventer.</h2></div><div class="booster-actions"><p role="status">{{ founding.revealed.length }} / 12 joueurs dévoilés</p><button class="reveal-all" @click="all">Tout dévoiler</button></div></div>
   <p class="hint">Ouvre tes trois pochettes, puis retourne les cartes une par une. Tu choisiras ensuite six joueurs parmi les douze. Tout dévoiler ouvre les trois pochettes et révèle tous les profils.</p>
   <div class="booster-packs"><button v-for="index in [0,1,2]" :key="index" class="booster-pack" :class="{'is-open':founding.opened.includes(index),'is-opening':opening===index,'is-active':active===index}" :disabled="opening!==null" :aria-label="`${founding.opened.includes(index)?'Revoir':'Ouvrir'} la pochette ${index+1}`" @click="open(index)" @animationend="animationDone">

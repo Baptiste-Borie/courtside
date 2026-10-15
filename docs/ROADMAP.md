@@ -24,3 +24,5 @@ La revue du prototype 001 a validé les captures ; le joueur souhaite avancer ve
 - Patch 015 : vingt profils de jeu, gabarits et caractéristiques cohérents, exceptions rares et préservation des créations déjà entamées. Voir PLAYER_PROFILES.md. Traits, badges et titres individuels reportés.
 - Patch 016 : composition sur un demi-terrain, trois postes, banc, échanges par glisser-déposer ou sélection au clic/clavier, fiches partagées et sauvegarde des emplacements. Les cinq postes viendront avec le 5v5.
 - Patch 017 : demi-cercle de la ligne médiane recentré, cercles non étirés et contrôle géométrique dans la revue ordinateur/mobile.
+- Patch 018 : potentiel lié à l'âge avec exceptions, écrans dans la fenêtre sans défilement de page, détails dans des modales et vues paginées, barre d'action persistante. Revue de carrière aux six résolutions.
+- Idées à examiner après le test de cette boucle : comparaison titulaire/remplaçant au moment de composer, indication de marge de progression et rappels de fatigue avant un match. Ces idées ne sont pas encore implémentées.

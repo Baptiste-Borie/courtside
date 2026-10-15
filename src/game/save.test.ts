@@ -52,7 +52,7 @@ it('migre une création 014 sans changer les joueurs déjà révélés',()=>{
  expect(loaded.scouting).toEqual(old.scouting)
  expect(loaded.founding.revealed).toEqual(['player-0'])
  expect(decodeSave(JSON.stringify(loaded))).toEqual(loaded)
- expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:3}}))).toThrow()
+ expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:4}}))).toThrow()
 })
 
 it('conserve les postes et les emplacements vides, et reprend les anciens titulaires',()=>{

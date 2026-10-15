@@ -6,8 +6,8 @@ import PlayerCard from './PlayerCard.vue'
 import { foundingCandidates, type Founding, type FoundingPhase } from './game/founding'
 const props=defineProps<{name:string;founding:Founding;saveStatus:string;error:string}>()
 const emit=defineEmits<{'update:name':[value:string];'update:founding':[value:Founding];pick:[id:string];confirm:[];restart:[];menu:[]}>()
-const candidates=computed(()=>foundingCandidates(props.founding.generation)),page=ref(0),pageSize=ref(window.innerWidth<600?1:4)
-function resize(){const size=window.innerWidth<600?1:4;if(size!==pageSize.value){page.value=Math.floor(page.value*pageSize.value/size);pageSize.value=size}}
+const candidates=computed(()=>foundingCandidates(props.founding.generation)),page=ref(0),pageSize=ref(window.innerWidth<600||window.innerHeight<600?1:4)
+function resize(){const size=window.innerWidth<600||window.innerHeight<600?1:4;if(size!==pageSize.value){page.value=Math.floor(page.value*pageSize.value/size);pageSize.value=size}}
 onMounted(()=>window.addEventListener('resize',resize));onUnmounted(()=>window.removeEventListener('resize',resize))
 const lastPage=computed(()=>Math.ceil(candidates.value.length/pageSize.value)-1)
 const phase=computed<FoundingPhase>(()=>props.founding.phase??(props.founding.revealed.length===12?'selection':'packs'))

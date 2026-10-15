@@ -242,3 +242,15 @@ terrain et des vérifications d'échanges, d'emplacements libres et de reprise.
 Le demi-cercle de la ligne médiane est recentré. Les tracés suivent la taille du
 terrain sans étirer les cercles sur ordinateur et mobile. La revue vérifie leur
 centrage et leurs proportions, et produit `review/courtside-revue-017.zip`.
+
+### Patch 018 — une fenêtre de jeu
+
+Les écrans occupent la fenêtre, avec pagination, onglets et modales. Les actions
+restent visibles ; aucun défilement de page n'est nécessaire. Le terrain adopte
+une composition triangulaire et le banc est paginé. Le potentiel des nouveaux
+joueurs dépend désormais de l'âge, avec des exceptions ; les joueurs sauvegardés
+et les pochettes entamées conservent leurs valeurs.
+
+Voir [le contrat des écrans et du potentiel](docs/GAME_WINDOW.md).
+`npm run review` joue une carrière isolée et produit `review/courtside-revue-018.zip`.
+La revue teste aussi les petits écrans et le mode paysage.

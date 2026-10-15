@@ -4,13 +4,22 @@ import type { Player } from './game/model'
 import { lineupPositions, placePlayer, selectedFromLineup, sendToBench, type Lineup } from './game/lineup'
 import LineupToken from './LineupToken.vue'
 import CourtMarkings from './CourtMarkings.vue'
+import GameDialog from './GameDialog.vue'
+import Pager from './Pager.vue'
+import { useViewport } from './useViewport'
 import PlayerDossier from './PlayerDossier.vue'
 const props=defineProps<{roster:Player[];lineup:Lineup;year:number;name:string}>()
 const emit=defineEmits<{'update:lineup':[value:Lineup]}>()
 const armed=ref<string|null>(null),dragged=ref<string|null>(null),hover=ref<number|'bench'|null>(null),notice=ref('')
 const inspecting=ref<string|null>(null),dossier=ref<InstanceType<typeof PlayerDossier>|null>(null)
+const help=ref<InstanceType<typeof GameDialog>|null>(null),benchPage=ref(0)
+const {width,height}=useViewport()
+const benchSize=computed(()=>width.value<651?2:height.value>850?3:2)
+const benchPages=computed(()=>Math.max(1,Math.ceil(bench.value.length/benchSize.value)))
+const visibleBench=computed(()=>bench.value.slice(benchPage.value*benchSize.value,(benchPage.value+1)*benchSize.value))
 const selected=computed(()=>selectedFromLineup(props.lineup))
 const bench=computed(()=>props.roster.filter(p=>!selected.value.includes(p.id)))
+watch([benchPages,benchSize],()=>benchPage.value=Math.min(benchPage.value,benchPages.value-1))
 const inspected=computed(()=>props.roster.find(p=>p.id===inspecting.value))
 const armedPlayer=computed(()=>props.roster.find(p=>p.id===armed.value))
 const playerAt=(index:number)=>props.roster.find(p=>p.id===props.lineup[index])
@@ -57,7 +66,7 @@ async function inspect(id:string){inspecting.value=id;await nextTick();dossier.v
 <template>
 <section class="lineup-board" aria-labelledby="lineup-title" @keydown.esc="cancel">
   <header class="lineup-heading"><div><p class="eyebrow">{{ name }} / COMPOSITION</p><h2 id="lineup-title">Ton trois de départ.</h2></div><span class="lineup-count"><b>{{ selected.length }}</b> / 3 <small>sur le terrain</small></span></header>
-  <div class="lineup-instructions"><p v-if="armedPlayer"><strong>{{ armedPlayer.firstName }} {{ armedPlayer.lastName }}</strong> sélectionné. Choisis un poste ou un joueur à échanger.</p><p v-else>Glisse un joueur sur le terrain pour le titulariser. Tu peux aussi sélectionner un joueur puis son emplacement.</p><button v-if="armed" type="button" @click="cancel">Annuler</button></div>
+  <div class="lineup-instructions"><p v-if="armedPlayer"><strong>{{ armedPlayer.firstName }} {{ armedPlayer.lastName }}</strong> sélectionné. Choisis un poste ou un joueur à échanger.</p><p v-else>Glisse un joueur, ou sélectionne-le puis choisis son poste.</p><button v-if="armed" type="button" @click="cancel">Annuler</button></div>
   <div class="lineup-layout">
     <div class="lineup-court" aria-label="Terrain de composition 3 contre 3">
       <CourtMarkings />
@@ -69,16 +78,17 @@ async function inspect(id:string){inspecting.value=id;await nextTick();dossier.v
       </div>
     </div>
     <aside class="lineup-bench" :class="{'is-drop-target':hover==='bench'}" aria-labelledby="bench-title" @dragover="over($event,'bench')" @dragleave="hover==='bench'&&(hover=null)" @drop.stop="drop($event,'bench')">
-      <header><p class="eyebrow">LA ROTATION</p><h3 id="bench-title">Le banc <span>{{ bench.length }}</span></h3><p>Prêts à entrer en jeu.</p></header>
-      <div class="lineup-bench-list"><div v-for="player in bench" :key="player.id" @dragover.stop="over($event,'bench')" @drop.stop="dropOnPlayer($event,player.id)">
+      <header><p class="eyebrow">LA ROTATION</p><h3 id="bench-title">Le banc <span>{{ bench.length }}</span></h3><Pager v-model:page="benchPage" :pages="benchPages" label="Banc" /></header>
+      <div class="lineup-bench-list"><div v-for="player in visibleBench" :key="player.id" @dragover.stop="over($event,'bench')" @drop.stop="dropOnPlayer($event,player.id)">
         <LineupToken :player="player" role="Banc" :armed="armed===player.id" @choose="choose(player.id)" @inspect="inspect(player.id)" @start="start($event,player.id)" @end="cancel" />
       </div></div>
       <button v-if="armed&&lineup.includes(armed)" type="button" class="lineup-bench-action" @click="benchOut(armed)">Envoyer le joueur sélectionné sur le banc</button>
-      <p class="lineup-bench-help">Glisse un titulaire dans cette zone pour le sortir, ou sur un remplaçant pour les échanger.</p>
+
     </aside>
   </div>
   <p class="lineup-notice" role="status">{{ notice || (selected.length<3?'Complète les trois postes avant de rejoindre le tournoi.':'Trois joueurs en place. À toi de trouver l’alchimie.') }}</p>
-  <p class="hint lineup-footnote">Les emplacements indiquent les rôles de ta composition. Le poste naturel de chaque joueur reste affiché ; tu peux essayer d’autres associations. Au-delà de 20 de fatigue, ses performances diminuent.</p>
+  <button class="lineup-help" @click="help?.open()">Comment composer ?</button>
+  <GameDialog ref="help" title="Composer ton équipe"><p>Glisse un joueur du banc sur un poste pour remplacer le titulaire. Déplace un titulaire sur un autre pour les échanger, ou vers le banc pour le sortir.</p><p>Au clic, au toucher ou au clavier : sélectionne un joueur, puis le poste ou le joueur à échanger. Annuler ou Échap abandonne la sélection.</p><p>Les postes sont libres. Les caractéristiques et le gabarit déterminent les performances. Au-delà de 20 de fatigue, un joueur perd en efficacité.</p></GameDialog>
   <PlayerDossier v-if="inspected" ref="dossier" :player="inspected" :year="year" />
 </section>
 </template>

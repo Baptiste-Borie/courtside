@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 const folder = await mkdtemp(join(tmpdir(), 'courtside-balance-'))
 try {
   await writeFile(join(folder, 'package.json'), '{"type":"module"}')
-  for (const name of ['model', 'random', 'profiles', 'generate', 'fitness', 'simulate']) {
+  for (const name of ['model', 'random', 'profiles', 'potential', 'generate', 'fitness', 'simulate']) {
     const source = await readFile(new URL(`../src/game/${name}.ts`, import.meta.url), 'utf8')
     const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext } }).outputText.replace(/from '(\.\/[^']+)'/g, "from '$1.js'")
     await writeFile(join(folder, `${name}.js`), output)

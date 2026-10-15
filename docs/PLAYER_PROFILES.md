@@ -60,3 +60,7 @@ tournoi entamé sont conservés. Une création antérieure au patch 015 garde se
 douze candidats d'origine jusqu'à confirmation, via la génération 1. Les nouvelles
 créations utilisent la génération 2 ; les nouveaux prospects et adversaires
 utilisent les profils cohérents. Aucune réinitialisation de sauvegarde nécessaire.
+
+Depuis le patch 018, les nouvelles créations utilisent la génération 3 : mêmes
+profils et caractéristiques, avec un potentiel lié à l'âge. Les générations 1 et 2
+restent disponibles pour préserver les candidats des créations déjà entamées.
