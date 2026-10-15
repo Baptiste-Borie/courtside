@@ -44,3 +44,9 @@ summary { cursor:pointer; font-size:11px; color:var(--muted); } dl { display:gri
 
 .brand-ball { width:27px; height:27px; flex-shrink:0; }
 .game-rail .brand-edition { display:none; }
+
+/* La confirmation reste dans le flux pour laisser les fiches entièrement visibles. */
+.founding-confirm { position:static; box-shadow:none; }
+.draft-heading>.draft-progress { display:block; flex-shrink:0; text-align:right; }
+.draft-progress strong { color:var(--ink); font-size:23px; letter-spacing:-1px; }
+@media(max-width:520px) { .draft-heading { flex-wrap:wrap; gap:0; }.draft-heading>.draft-progress { margin-top:0; text-align:left; }.draft-progress span { display:none; } }

@@ -42,6 +42,7 @@ function advance() {
 const scouting = shallowRef(createScouting(1983))
 const prospects = computed(()=>scouting.value.pool.filter(p=>scouting.value.known.includes(p.id)))
 const screen = ref<'team'|'tournament'|'scouting'|'training'|'circuit'|'lab'>('team')
+watch([screen,()=>founding.value.completed],()=>window.scrollTo(0,0),{flush:'post'})
 const lab = computed(()=>screen.value==='lab')
 const name = ref('Les Aurores'), roster = shallowRef(createRoster(1983))
 const selected = ref(roster.value.slice(0,3).map(p=>p.id)), tactic = ref<Tactic>('balanced')

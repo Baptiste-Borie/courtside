@@ -20,6 +20,7 @@ async function installBrowser() {
   })
 }
 async function capture(page, filename, fullPage = true) {
+  if(fullPage)await page.evaluate(()=>window.scrollTo(0,0))
   await page.screenshot({ path: fileURLToPath(new URL(filename, output)), fullPage, animations: 'disabled' })
   report.captures.push(filename)
 }
@@ -39,6 +40,7 @@ try {
   page.on('console', message => { if (message.type() === 'error') report.errors.push(message.text()) })
   await page.goto(`http://127.0.0.1:${address.port}`, { waitUntil: 'networkidle' })
   await page.getByRole('heading', { name: /Tout commence/ }).waitFor()
+  if(await page.locator('.founding-confirm').evaluate(element=>['fixed','sticky'].includes(getComputedStyle(element).position)))throw Error('La confirmation masque les candidats')
   if(await page.locator('.draft-grid .player-card').count()!==12)throw Error('Douze candidats attendus au début de carrière')
   const enter=page.getByRole('button',{name:/Entrer dans le circuit/})
   if(await enter.isEnabled())throw Error('Entrée dans le circuit possible sans six joueurs')
@@ -59,6 +61,7 @@ try {
   if(await page.locator('.draft-grid .player-card').nth(6).getByRole('button').isEnabled())throw Error('Septième recrue autorisée')
   await enter.click()
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('courtside.save.v1')).founding.completed)
+  await page.waitForFunction(()=>window.scrollY===0)
   const firstClub=await page.evaluate(()=>JSON.parse(localStorage.getItem('courtside.save.v1')))
   if(!firstClub.founding.completed || firstClub.roster.length!==6 || firstClub.selected.length!==3 || firstClub.money!==0)throw Error('Création du club incorrecte')
   report.checks.push('Sélection de six joueurs parmi douze, limite d’effectif et reprise de sélection incomplète')
