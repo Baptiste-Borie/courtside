@@ -1,3 +1,4 @@
+import { validLineup, type Lineup } from './lineup'
 import { foundingCandidates, type Founding } from './founding'
 import { circuits, createCareer, type Career } from './circuit'
 import { trainingLabels, type Training } from './training'
@@ -7,7 +8,7 @@ import type { ScoutingState } from './scouting'
 import type { Tournament } from './tournament'
 export const saveKey = 'courtside.save.v1'
 export interface Save {
-  version: 1; founding: Founding; career: Career; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
+  version: 1; lineup?: Lineup; founding: Founding; career: Career; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
   tactic: keyof typeof tactics; tournament: Tournament | null
   money: number; titles: number; edition: number; scouting: ScoutingState
 }
@@ -50,6 +51,7 @@ function tournament(x: unknown): boolean {
 export function decodeSave(text: string): Save {
   const x: unknown=JSON.parse(text)
   if(!record(x)||x.version!==1||typeof x.name!=='string'||x.name.length>40||!players(x.roster)||x.roster.length<6||x.roster.length>10||!strings(x.selected)||x.selected.length>3||x.selected.some(id=>!(x.roster as Player[]).some(p=>p.id===id))) throw Error('Sauvegarde incompatible ou endommagée.')
+  if(x.lineup!==undefined&&!validLineup(x.lineup,x.roster,x.selected))throw Error('Composition du terrain invalide.')
   if(!Object.hasOwn(tactics,String(x.tactic))||!integer(x.money)||!integer(x.titles)||!integer(x.edition)||x.titles>x.edition||!tournament(x.tournament)||!record(x.scouting)) throw Error('Sauvegarde incompatible ou endommagée.')
   const s=x.scouting
   if(!players(s.pool)||s.pool.length!==30||!strings(s.known)||s.known.some(id=>!(s.pool as Player[]).some(p=>p.id===id))||!integer(s.sequence,0,10)||!integer(s.revealed,0,3)) throw Error('Dossiers de scouting invalides.')

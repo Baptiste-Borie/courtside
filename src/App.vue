@@ -3,6 +3,8 @@ import GameMenu from './GameMenu.vue'
 import ClubHub from './ClubHub.vue'
 import FoundingScreen from './FoundingScreen.vue'
 import PlayerCard from './PlayerCard.vue'
+import TeamLineup from './TeamLineup.vue'
+import { lineupFromSelected, selectedFromLineup, type Lineup } from './game/lineup'
 import { createFounding, foundClub, type Founding } from './game/founding'
 import MatchPreview from './MatchPreview.vue'
 import MatchReport from './MatchReport.vue'
@@ -51,6 +53,8 @@ watch([route,screen,()=>founding.value.completed],()=>window.scrollTo(0,0),{flus
 const lab = computed(()=>screen.value==='lab')
 const name = ref('Les Aurores'), roster = shallowRef(createRoster(1983))
 const selected = ref(roster.value.slice(0,3).map(p=>p.id)), tactic = ref<Tactic>('balanced')
+const lineup=ref<Lineup>(lineupFromSelected(selected.value))
+function compose(value:Lineup){lineup.value=value;selected.value=selectedFromLineup(value);error.value=''}
 const tournament = shallowRef<Tournament | null>(null), money=ref(0), titles=ref(0), edition=ref(0), error=ref('')
 const saveStatus = ref('Sauvegarde automatique active')
 let canSave = true
@@ -59,12 +63,12 @@ try {
  if(raw) {
   hasSave.value=true;
   const loaded=decodeSave(raw)
-  founding.value=loaded.founding;trainingPlayer.value=loaded.roster[0]!.id;career.value=loaded.career;training.value=loaded.training;calendar.value=loaded.calendar;name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;tactic.value=loaded.tactic
+  founding.value=loaded.founding;trainingPlayer.value=loaded.roster[0]!.id;career.value=loaded.career;training.value=loaded.training;calendar.value=loaded.calendar;name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;lineup.value=loaded.lineup??lineupFromSelected(loaded.selected);tactic.value=loaded.tactic
   tournament.value=loaded.tournament;money.value=loaded.money;titles.value=loaded.titles;edition.value=loaded.edition;scouting.value=loaded.scouting
   saveStatus.value='Partie reprise'
  }
 } catch(e) {canSave=false;saveStatus.value=`Reprise impossible : ${(e as Error).message} Votre sauvegarde est conservée.`}
-function snapshot(): Save {return {version:1,founding:founding.value,career:career.value,training:training.value,calendar:calendar.value,name:name.value,roster:roster.value,selected:selected.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
+function snapshot(): Save {return {version:1,founding:founding.value,career:career.value,training:training.value,calendar:calendar.value,name:name.value,roster:roster.value,selected:selected.value,lineup:lineup.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
 watch(snapshot,()=>{
  if(!canSave) return
  try {localStorage.setItem(saveKey,JSON.stringify(snapshot()));hasSave.value=true;saveStatus.value='Partie sauvegardée'}
@@ -73,13 +77,12 @@ watch(snapshot,()=>{
 function newGame() {
  if(hasSave.value&&!window.confirm('Effacer votre partie sauvegardée et recommencer ?')) return
  try {localStorage.removeItem(saveKey)} catch {saveStatus.value='Impossible d’effacer la sauvegarde.';return}
- route.value='career';hasSave.value=false;canSave=true;founding.value=createFounding();trainingPlayer.value='player-0';career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
+ route.value='career';hasSave.value=false;canSave=true;founding.value=createFounding();trainingPlayer.value='player-0';career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id);lineup.value=lineupFromSelected(selected.value)
  tactic.value='balanced';tournament.value=null;money.value=0;titles.value=0;edition.value=0;scouting.value=createScouting(1983);screen.value='club';error.value=''
 }
 const lastMatch=computed(()=>tournament.value?.matches.filter(m=>m.home==='club'||m.away==='club').at(-1))
 const selectedTeam=computed(()=>selected.value.length===3 ? {id:'club',name:name.value,players:selected.value.map(id=>roster.value.find(player=>player.id===id)!)} : null)
 const opponent=computed(()=>tournament.value && !tournament.value.finished ? tournament.value.teams[tournament.value.round+1] : null)
-function toggle(id:string) { selected.value=selected.value.includes(id)?selected.value.filter(x=>x!==id):selected.value.length<3?[...selected.value,id]:selected.value }
 function start() {
  try { const planned=scheduleTournament(calendar.value);const entered=enterCircuit(career.value,chosenCircuit.value,1983+edition.value,roster.value,selected.value,name.value);tournament.value=entered.tournament;career.value=entered.career;calendar.value=planned;edition.value++;screen.value='tournament';error.value='' }
  catch(e) {error.value=(e as Error).message}
@@ -115,7 +118,7 @@ function confirmFounding() {
  try {
   if(founding.value.revealed.length!==12)throw Error('Dévoilez les douze joueurs avant de composer votre effectif.')
   const club=foundClub(name.value,founding.value.selected,founding.value.generation)
-  name.value=club.name;roster.value=club.roster;selected.value=club.selected;trainingPlayer.value=club.roster[0]!.id
+  name.value=club.name;roster.value=club.roster;selected.value=club.selected;lineup.value=lineupFromSelected(club.selected);trainingPlayer.value=club.roster[0]!.id
   founding.value=club.founding;screen.value='club';error.value=''
  } catch(e) {error.value=(e as Error).message}
 }
@@ -132,8 +135,8 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
   <ClubHub v-else-if="screen==='club'" :name="name" :date="dateLabel(calendar.day)" :money="money" :reputation="career.reputation" :titles="titles" :count="roster.length" :event-label="upcoming?.label??null" :event-date="upcoming?dateLabel(upcoming.day):null" :match-ready="calendar.matchDay!==null&&calendar.matchDay<=calendar.day" :active-tournament="!!tournament&&!tournament.finished" :has-played="edition>0" :save-status="saveStatus" @visit="screen=$event" @advance="advance" />
   <main v-else>
     <header><div><p class="eyebrow">France · {{ dateLabel(calendar.day) }} · Circuit streetball</p><h1>{{ screen==='team' ? 'Votre équipe' : screen==='tournament' ? circuits[currentCircuit].name : screen==='circuit' ? 'Votre parcours' : screen==='training' ? 'Développer vos joueurs' : 'Votre réseau de scouting' }}</h1></div><div class="club-wallet"><span><small>TRÉSORERIE</small><b>{{ money }} <em>F</em></b></span><span><small>RÉPUTATION</small><b>{{ career.reputation }}</b></span><span><small>TITRES</small><b>{{ titles }}</b></span></div></header>
-    <p>{{ screen==='team' ? 'Choisissez trois titulaires parmi vos joueurs, puis inscrivez votre équipe au tournoi.' : screen==='tournament' ? 'Trois rencontres pour décrocher le titre et financer vos prochains recrutements.' : screen==='circuit' ? 'Gagnez en réputation pour accéder à de nouvelles compétitions et construisez votre palmarès.' : screen==='training' ? 'Investissez dans un camp individuel pour améliorer durablement un joueur.' : 'Découvrez des profils, comparez leurs qualités et renforcez votre équipe.' }}</p>
-    <section v-if="screen==='team'" class="club-banner"><div><p class="eyebrow">VOTRE ÉQUIPE / CIRCUIT STREETBALL</p><h2>{{ name }}</h2><p>Six au départ. Trois sur le terrain.<br>À vous de trouver l’alchimie.</p></div><div class="banner-court" aria-hidden="true"><span>3×3</span><svg viewBox="0 0 320 180"><path d="M10 10h300v160H10zM160 10v160"/><circle cx="160" cy="90" r="30"/><path d="M10 50h65v80H10M310 50h-65v80h65"/><path d="M10 25a85 85 0 0 1 0 130M310 25a85 85 0 0 0 0 130"/></svg></div></section>
+    <p>{{ screen==='team' ? 'Compose ton trois sur le terrain, prépare ta rotation puis rejoins le tournoi.' : screen==='tournament' ? 'Trois rencontres pour décrocher le titre et financer vos prochains recrutements.' : screen==='circuit' ? 'Gagnez en réputation pour accéder à de nouvelles compétitions et construisez votre palmarès.' : screen==='training' ? 'Investissez dans un camp individuel pour améliorer durablement un joueur.' : 'Découvrez des profils, comparez leurs qualités et renforcez votre équipe.' }}</p>
+    <TeamLineup v-if="screen==='team'" :roster="roster" :lineup="lineup" :year="currentYear" :name="name" @update:lineup="compose" />
     <section class="event-bar" aria-label="Prochain événement"><div><p class="eyebrow">Calendrier</p><p v-if="upcoming">{{ upcoming.label }} · {{ dateLabel(upcoming.day) }}</p><p v-else-if="calendar.matchDay!==null">Votre match est prêt à être joué.</p><p v-else>Inscrivez votre équipe à un tournoi, lancez un scouting ou financez un camp d’entraînement.</p></div><button v-if="upcoming" @click="advance">Avancer au prochain événement</button><button v-else-if="calendar.matchDay!==null && screen!=='tournament'" @click="screen='tournament'">Rejoindre le tournoi</button></section>
     <div v-if="screen==='team' || screen==='tournament'" class="toolbar"><label>Nom de votre équipe<input v-model="name" :disabled="!!tournament && !tournament.finished" maxlength="40" /></label><label>Tactique<select id="club-tactic" aria-label="Tactique" v-model="tactic"><option v-for="(label,key) in tactics" :value="key" :key="key">{{ label }}</option></select></label><label v-if="!tournament || tournament.finished">Compétition<select v-model="chosenCircuit"><option v-for="(definition,id) in circuits" :key="id" :value="id" :disabled="career.reputation<definition.threshold">{{ definition.name }}{{ career.reputation<definition.threshold ? ` · ${definition.threshold} réputation requise` : '' }}</option></select></label><button v-if="!tournament || tournament.finished" class="primary" :disabled="selected.length!==3" @click="start">{{ tournament ? 'Participer au prochain tournoi' : 'Inscrire mon équipe' }}</button></div>
     <div class="save-bar"><p role="status">{{ saveStatus }}</p><button @click="newGame">Nouvelle partie</button></div>
@@ -174,9 +177,6 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
       <p class="hint">Effectif : {{ roster.length }}/10. Une campagne prend sept jours dans le jeu. Les dossiers restent disponibles après leur révélation.</p>
     </section>
     <div v-if="screen==='team' || screen==='tournament'" class="section-content">
-      <section v-if="screen==='team'" class="team"><h2>Votre effectif · {{ selected.length }}/3 titulaires</h2><p class="hint">Décochez un titulaire pour libérer sa place. Aucun poste imposé : testez les associations. Les titulaires se fatiguent ; tous les joueurs récupèrent six points par jour. Au-delà de 20, la fatigue réduit leurs performances.</p>
-        <div class="roster-grid"><PlayerCard v-for="(player,index) in roster" :key="player.id" :player="player" :index="index" :year="currentYear" :chosen="selected.includes(player.id)" :disabled="!selected.includes(player.id)&&selected.length===3" @toggle="toggle(player.id)" /></div>
-      </section>
       <section v-if="screen==='tournament'" class="team"><h2>{{ tournament?'Classement du tournoi':circuits[chosenCircuit].name }}</h2><template v-if="!tournament"><p>Quatre équipes, trois rencontres chacune. Premier à 21, paniers à 1 et 2 points.</p><p>Récompenses : {{ 300*circuits[chosenCircuit].multiplier }} F au champion, {{ 200*circuits[chosenCircuit].multiplier }} F au deuxième, {{ 125*circuits[chosenCircuit].multiplier }} F au troisième et {{ 75*circuits[chosenCircuit].multiplier }} F au quatrième.</p><p class="hint">Les francs sont une ressource de jeu ; les montants ne sont pas une reconstitution historique.</p></template><template v-else><div class="table-wrap"><table><caption>Départage : victoires, différence de points, points marqués, identifiant stable.</caption><thead><tr><th>Équipe</th><th>V</th><th>Diff.</th></tr></thead><tbody><tr v-for="(line,i) in tournament.standings" :key="line.teamId"><th>{{ i+1 }}. {{ line.name }}</th><td>{{ line.wins }}</td><td>{{ line.scored-line.conceded }}</td></tr></tbody></table></div><h3 class="history-title">Résultats du tournoi</h3><p v-for="match in tournament.matches" :key="`${match.round}-${match.home}`" class="hint">{{ teamName(match.home) }} {{ match.result.scores[0] }}–{{ match.result.scores[1] }} {{ teamName(match.away) }}</p></template></section>
     </div>
     <footer>COURTSIDE / 1983 · Votre carrière est sauvegardée automatiquement dans ce navigateur.</footer>

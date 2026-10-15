@@ -54,3 +54,12 @@ it('migre une création 014 sans changer les joueurs déjà révélés',()=>{
  expect(decodeSave(JSON.stringify(loaded))).toEqual(loaded)
  expect(()=>decodeSave(JSON.stringify({...old,founding:{...old.founding,generation:3}}))).toThrow()
 })
+
+it('conserve les postes et les emplacements vides, et reprend les anciens titulaires',()=>{
+ const s=game();s.lineup=[s.selected[0]!,null,s.selected[2]!];s.selected=[s.lineup[0]!,s.lineup[2]!]
+ expect(decodeSave(JSON.stringify(s))).toEqual(s)
+ const old=game(),loaded=decodeSave(JSON.stringify(old))
+ expect(loaded.lineup).toBeUndefined()
+ expect(loaded.selected).toEqual(old.selected)
+ for(const lineup of [[s.selected[0],s.selected[0],null],['missing',null,s.selected[1]],[s.selected[1],null,s.selected[0]],[null,null,null]])expect(()=>decodeSave(JSON.stringify({...s,lineup}))).toThrow()
+})

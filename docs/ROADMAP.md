@@ -22,3 +22,4 @@ La revue du prototype 001 a validé les captures ; le joueur souhaite avancer ve
 
 - Patch 014 : suppression du dos après révélation, fiche joueur séparée et couleurs par niveau de note.
 - Patch 015 : vingt profils de jeu, gabarits et caractéristiques cohérents, exceptions rares et préservation des créations déjà entamées. Voir PLAYER_PROFILES.md. Traits, badges et titres individuels reportés.
+- Patch 016 : composition sur un demi-terrain, trois postes, banc, échanges par glisser-déposer ou sélection au clic/clavier, fiches partagées et sauvegarde des emplacements. Les cinq postes viendront avec le 5v5.

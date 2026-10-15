@@ -225,3 +225,14 @@ partie locale après confirmation). Le détail et les limites de simulation sont
 précisés dans [les profils de jeu](docs/PLAYER_PROFILES.md).
 
 La revue produit maintenant `review/courtside-revue-015.zip`.
+
+### Patch 016 — composer sur le terrain
+
+Mon équipe affiche un demi-terrain avec meneur, ailier, intérieur et le banc.
+Glisser un joueur sur un emplacement remplace le titulaire ; glisser entre deux
+postes les échange. La sélection au clic, au toucher ou au clavier permet les
+mêmes changements. Les postes et les places libres sont sauvegardés. Les anciennes
+parties conservent leurs titulaires. Détails : [composition](docs/TEAM_LINEUP.md).
+
+La revue produit `review/courtside-revue-016.zip`, dont deux nouvelles captures du
+terrain et des vérifications d'échanges, d'emplacements libres et de reprise.
