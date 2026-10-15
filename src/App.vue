@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import GameMenu from './GameMenu.vue'
+import ClubHub from './ClubHub.vue'
 import FoundingScreen from './FoundingScreen.vue'
 import PlayerCard from './PlayerCard.vue'
 import { createFounding, foundClub, type Founding } from './game/founding'
@@ -14,6 +16,9 @@ import Laboratory from './Laboratory.vue'
 import { attributeLabels, tactics, type Tactic } from './game/model'
 import { createScouting, launchScouting, revealNext, closeCampaign, recruit, recruitmentCost, scoutingCost } from './game/scouting'
 import { createRoster, playRound, type Tournament } from './game/tournament'
+const route=ref<'menu'|'career'>('menu'),hasSave=ref(false),reduceMotion=ref(false)
+try {reduceMotion.value=localStorage.getItem('courtside.reduceMotion')==='true'}catch {}
+watch(reduceMotion,value=>{document.documentElement.dataset.reduceMotion=String(value);try{localStorage.setItem('courtside.reduceMotion',String(value))}catch{}},{immediate:true})
 const founding=shallowRef<Founding>(createFounding())
 const career=shallowRef(createCareer()), chosenCircuit=ref<CircuitId>('neighborhood')
 const currentCircuit=computed(()=>career.value.active ?? career.value.history.at(-1)?.circuit ?? chosenCircuit.value)
@@ -41,8 +46,8 @@ function advance() {
 }
 const scouting = shallowRef(createScouting(1983))
 const prospects = computed(()=>scouting.value.pool.filter(p=>scouting.value.known.includes(p.id)))
-const screen = ref<'team'|'tournament'|'scouting'|'training'|'circuit'|'lab'>('team')
-watch([screen,()=>founding.value.completed],()=>window.scrollTo(0,0),{flush:'post'})
+const screen = ref<'club'|'team'|'tournament'|'scouting'|'training'|'circuit'|'lab'>('club')
+watch([route,screen,()=>founding.value.completed],()=>window.scrollTo(0,0),{flush:'post'})
 const lab = computed(()=>screen.value==='lab')
 const name = ref('Les Aurores'), roster = shallowRef(createRoster(1983))
 const selected = ref(roster.value.slice(0,3).map(p=>p.id)), tactic = ref<Tactic>('balanced')
@@ -52,6 +57,7 @@ let canSave = true
 try {
  const raw=localStorage.getItem(saveKey)
  if(raw) {
+  hasSave.value=true;
   const loaded=decodeSave(raw)
   founding.value=loaded.founding;trainingPlayer.value=loaded.roster[0]!.id;career.value=loaded.career;training.value=loaded.training;calendar.value=loaded.calendar;name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;tactic.value=loaded.tactic
   tournament.value=loaded.tournament;money.value=loaded.money;titles.value=loaded.titles;edition.value=loaded.edition;scouting.value=loaded.scouting
@@ -61,14 +67,14 @@ try {
 function snapshot(): Save {return {version:1,founding:founding.value,career:career.value,training:training.value,calendar:calendar.value,name:name.value,roster:roster.value,selected:selected.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
 watch(snapshot,()=>{
  if(!canSave) return
- try {localStorage.setItem(saveKey,JSON.stringify(snapshot()));saveStatus.value='Partie sauvegardée'}
+ try {localStorage.setItem(saveKey,JSON.stringify(snapshot()));hasSave.value=true;saveStatus.value='Partie sauvegardée'}
  catch {saveStatus.value='Sauvegarde indisponible. Votre partie reste jouable pendant cette session.'}
 },{deep:true,flush:'post'})
 function newGame() {
- if(!window.confirm('Effacer votre partie sauvegardée et recommencer ?')) return
+ if(hasSave.value&&!window.confirm('Effacer votre partie sauvegardée et recommencer ?')) return
  try {localStorage.removeItem(saveKey)} catch {saveStatus.value='Impossible d’effacer la sauvegarde.';return}
- canSave=true;founding.value=createFounding();trainingPlayer.value='player-0';career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
- tactic.value='balanced';tournament.value=null;money.value=0;titles.value=0;edition.value=0;scouting.value=createScouting(1983);screen.value='team';error.value=''
+ route.value='career';hasSave.value=false;canSave=true;founding.value=createFounding();trainingPlayer.value='player-0';career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
+ tactic.value='balanced';tournament.value=null;money.value=0;titles.value=0;edition.value=0;scouting.value=createScouting(1983);screen.value='club';error.value=''
 }
 const lastMatch=computed(()=>tournament.value?.matches.filter(m=>m.home==='club'||m.away==='club').at(-1))
 const selectedTeam=computed(()=>selected.value.length===3 ? {id:'club',name:name.value,players:selected.value.map(id=>roster.value.find(player=>player.id===id)!)} : null)
@@ -110,17 +116,20 @@ function confirmFounding() {
   if(founding.value.revealed.length!==12)throw Error('Dévoilez les douze joueurs avant de composer votre effectif.')
   const club=foundClub(name.value,founding.value.selected)
   name.value=club.name;roster.value=club.roster;selected.value=club.selected;trainingPlayer.value=club.roster[0]!.id
-  founding.value=club.founding;screen.value='team';error.value=''
+  founding.value=club.founding;screen.value='club';error.value=''
  } catch(e) {error.value=(e as Error).message}
 }
+function resume() {route.value='career';screen.value='club'}
 function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?.name}
 </script>
 <template>
-  <FoundingScreen v-if="!founding.completed" v-model:name="name" v-model:founding="founding" :save-status="saveStatus" :error="error" @pick="pickFounder" @confirm="confirmFounding" @restart="newGame" />
+  <GameMenu v-if="route==='menu'" :has-save="hasSave" :can-continue="canSave" :club-name="name" :completed="founding.completed" v-model:reduce-motion="reduceMotion" :save-status="saveStatus" @start="newGame" @resume="resume" />
+  <FoundingScreen v-else-if="!founding.completed" v-model:name="name" v-model:founding="founding" :save-status="saveStatus" :error="error" @pick="pickFounder" @confirm="confirmFounding" @restart="newGame" @menu="route='menu'" />
   <div v-else class="game-shell">
   <aside class="game-rail"><div class="brand"><svg class="brand-ball" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="currentColor"/><path d="M2 16h28M16 2v28M6 6c14 7 14 13 0 20M26 6c-14 7-14 13 0 20" fill="none" stroke="#19251f" stroke-width="1.5"/></svg> COURTSIDE<span class="brand-edition">1983</span></div><p class="rail-caption">DU BITUME AUX SOMMETS</p>
-  <nav class="mode-nav" aria-label="Sections du jeu"><button @click="screen='team'" :aria-pressed="screen==='team'">Mon équipe</button><button @click="screen='tournament'" :aria-pressed="screen==='tournament'">Tournoi</button><button @click="screen='scouting'" :aria-pressed="screen==='scouting'">Scouting</button><button @click="screen='training'" :aria-pressed="screen==='training'">Entraînement</button><button @click="screen='circuit'" :aria-pressed="screen==='circuit'">Circuit</button><button @click="screen='lab'" :aria-pressed="screen==='lab'">Laboratoire</button></nav><div class="rail-club"><span class="eyebrow">VOTRE CLUB</span><strong>{{ name }}</strong><span>{{ roster.length }} joueurs · {{ career.reputation }} réputation</span></div><p class="rail-footer">FRANCE / SAISON {{ currentYear }}<br>UNE CARRIÈRE À CONSTRUIRE.</p></aside>
+  <nav class="mode-nav" aria-label="Sections du jeu"><button @click="screen='club'" :aria-pressed="screen==='club'">Le club</button><button @click="screen='team'" :aria-pressed="screen==='team'">Mon équipe</button><button @click="screen='tournament'" :aria-pressed="screen==='tournament'">Tournoi</button><button @click="screen='scouting'" :aria-pressed="screen==='scouting'">Scouting</button><button @click="screen='training'" :aria-pressed="screen==='training'">Entraînement</button><button @click="screen='circuit'" :aria-pressed="screen==='circuit'">Circuit</button><button @click="screen='lab'" :aria-pressed="screen==='lab'">Laboratoire</button><button @click="route='menu'">Menu principal</button></nav><div class="rail-club"><span class="eyebrow">VOTRE CLUB</span><strong>{{ name }}</strong><span>{{ roster.length }} joueurs · {{ career.reputation }} réputation</span></div><p class="rail-footer">FRANCE / SAISON {{ currentYear }}<br>UNE CARRIÈRE À CONSTRUIRE.</p></aside>
   <div class="game-content"><Laboratory v-if="lab" />
+  <ClubHub v-else-if="screen==='club'" :name="name" :date="dateLabel(calendar.day)" :money="money" :reputation="career.reputation" :titles="titles" :count="roster.length" :event-label="upcoming?.label??null" :event-date="upcoming?dateLabel(upcoming.day):null" :match-ready="calendar.matchDay!==null&&calendar.matchDay<=calendar.day" :active-tournament="!!tournament&&!tournament.finished" :has-played="edition>0" :save-status="saveStatus" @visit="screen=$event" @advance="advance" />
   <main v-else>
     <header><div><p class="eyebrow">France · {{ dateLabel(calendar.day) }} · Circuit streetball</p><h1>{{ screen==='team' ? 'Votre équipe' : screen==='tournament' ? circuits[currentCircuit].name : screen==='circuit' ? 'Votre parcours' : screen==='training' ? 'Développer vos joueurs' : 'Votre réseau de scouting' }}</h1></div><div class="club-wallet"><span><small>TRÉSORERIE</small><b>{{ money }} <em>F</em></b></span><span><small>RÉPUTATION</small><b>{{ career.reputation }}</b></span><span><small>TITRES</small><b>{{ titles }}</b></span></div></header>
     <p>{{ screen==='team' ? 'Choisissez trois titulaires parmi vos joueurs, puis inscrivez votre équipe au tournoi.' : screen==='tournament' ? 'Trois rencontres pour décrocher le titre et financer vos prochains recrutements.' : screen==='circuit' ? 'Gagnez en réputation pour accéder à de nouvelles compétitions et construisez votre palmarès.' : screen==='training' ? 'Investissez dans un camp individuel pour améliorer durablement un joueur.' : 'Découvrez des profils, comparez leurs qualités et renforcez votre équipe.' }}</p>

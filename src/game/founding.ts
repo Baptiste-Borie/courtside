@@ -1,8 +1,9 @@
 import { generateTeam } from './generate'
 import { createRoster } from './tournament'
 import type { Player } from './model'
-export interface Founding { completed: boolean; selected: string[]; opened: number[]; revealed: string[] }
-export function createFounding(): Founding { return { completed: false, selected: [], opened: [], revealed: [] } }
+export type FoundingPhase = 'intro'|'identity'|'packs'|'selection'
+export interface Founding { phase?:FoundingPhase; completed: boolean; selected: string[]; opened: number[]; revealed: string[] }
+export function createFounding(): Founding { return { phase:'intro', completed: false, selected: [], opened: [], revealed: [] } }
 export function foundingCandidates(): Player[] {
   const extra=[generateTeam(1985,'founding-a',''),generateTeam(1986,'founding-b','')].flatMap(team=>team.players)
   return [...createRoster(1983),...extra.map((player,index)=>({...player,id:`player-${index+6}`,teamId:'club'}))]

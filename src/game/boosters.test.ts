@@ -48,3 +48,13 @@ it('reprend une ouverture partielle et migre les sélections du patch 011 sans c
  expect(migrated.founding.opened).toEqual([0,1,2])
  expect(migrated.founding.revealed).toHaveLength(12)
 })
+
+it('conserve les étapes de création et refuse une étape de sélection prématurée',()=>{
+ const game=save()
+ for(const phase of ['intro','identity','packs','selection'] as const) {
+  game.founding=phase==='selection'?{...revealAll(createFounding()),phase}:{...createFounding(),phase}
+  expect(decodeSave(JSON.stringify(game)).founding.phase).toBe(phase)
+ }
+ expect(()=>decodeSave(JSON.stringify({...game,founding:{...createFounding(),phase:'selection'}}))).toThrow()
+ expect(()=>decodeSave(JSON.stringify({...game,founding:{...createFounding(),phase:'unknown'}}))).toThrow()
+})

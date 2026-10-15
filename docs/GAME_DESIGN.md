@@ -131,3 +131,14 @@ Ouverture animée, cartes face cachée, retournement individuel et bouton global
 Tout dévoiler. Après découverte, Composer mon effectif affiche les douze candidats.
 Pas de prix, rareté ou nouveaux attributs. Révélations sauvegardées ; les sélections
 anciennes conservent les profils qu’elles voyaient déjà. Le visuel 3×3 est conservé.
+
+
+## Directive UX — jeu vidéo
+
+L’interface doit être pensée comme un jeu : menu principal, scènes successives,
+action principale claire et écran central du club. Éviter de juxtaposer toute
+la création sur une longue page. Le départ suit introduction → nom → pochettes →
+effectif → club et premier tournoi. Le visuel 3×3 est la référence graphique validée.
+Le patch 013 applique ce parcours et conserve les systèmes existants ; les écrans
+plus détaillés seront affinés ensuite. Sur mobile, une carte à la fois permet
+la découverte et le choix sans longue grille verticale.

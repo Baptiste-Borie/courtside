@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 012
+## Prototype 013
 
 Début de carrière : six joueurs à choisir parmi douze candidats, puis trois titulaires et tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-012.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-013.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -183,3 +183,25 @@ Les sélections déjà commencées au patch 011 gardent leurs douze profils visi
 Les carrières déjà créées poursuivent normalement leur partie.
 Les animations respectent la préférence de réduction des mouvements.
 La revue vérifie retournement individuel, reprise, révélation globale et mobile.
+
+## Parcours de jeu
+
+Le lancement ouvre le menu principal : Continuer, Nouvelle carrière et Paramètres.
+Continuer est disponible pour une sauvegarde valide. Une nouvelle carrière demande
+confirmation avant de remplacer une sauvegarde existante. Réduire les animations
+est conservé comme préférence de ce navigateur.
+
+La création est organisée en scènes : introduction, nom du club, pochettes, effectif.
+Chaque étape dispose d’une action principale, avec retour vers les étapes précédentes.
+Le choix des joueurs se fait par pages de quatre sur ordinateur, une sur petit écran.
+Sur mobile, les cartes à retourner sont également présentées une à la fois.
+L’étape est sauvegardée avec les ouvertures, révélations et choix déjà effectués.
+Les créations du patch 012 reprennent les profils et le nom déjà connus.
+
+Une fois le club créé, l’écran Le club présente la prochaine action et les accès
+à l’effectif, au scouting, à l’entraînement et au circuit. Le menu reste accessible.
+Les écrans détaillés existants continuent de fonctionner ; leur mise en scène pourra
+être affinée à partir de ce parcours. Le visuel 3×3 est réutilisé sans modification.
+
+La revue capture le menu, les scènes, l’arrivée au club et les cartes sur mobile.
+Elle contrôle les pixels des PNG pour rejeter une capture vide ou uniforme.
