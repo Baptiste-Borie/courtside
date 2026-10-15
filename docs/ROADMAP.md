@@ -19,3 +19,5 @@
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.
+
+- Patch 014 : suppression du dos après révélation, fiche joueur séparée et couleurs par niveau de note.

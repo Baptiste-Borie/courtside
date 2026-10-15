@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 013
+## Prototype 014
 
 Début de carrière : six joueurs à choisir parmi douze candidats, puis trois titulaires et tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-013.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-014.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -205,3 +205,12 @@ Les écrans détaillés existants continuent de fonctionner ; leur mise en scèn
 
 La revue capture le menu, les scènes, l’arrivée au club et les cartes sur mobile.
 Elle contrôle les pixels des PNG pour rejeter une capture vide ou uniforme.
+
+## Fiches et niveaux des notes
+
+Le dos est retiré du rendu dès qu’une carte est révélée, pour éviter les superpositions
+et textes en miroir selon le navigateur. Le recto conserve une animation de retournement.
+Voir la fiche complète ouvre une fenêtre séparée : les cartes gardent leur taille.
+Les 21 notes sont regroupées et les notes hors simulation sont signalées séparément.
+Couleurs : faible (0–39), à développer (40–54), correct (55–69), bon (70–84),
+très bon (85–99). Les nombres et libellés accompagnent les couleurs.
