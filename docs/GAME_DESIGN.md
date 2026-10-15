@@ -101,3 +101,12 @@ Les adversaires gagnent respectivement 0/6/12 sur leurs caractéristiques (plafo
 Le format reste le même ; difficulté et montants seront équilibrés plus tard.
 Le palmarès garde les résultats à partir du patch 009 ; aucune reconstitution
 arbitraire des résultats anciens. La réputation commence à zéro à la migration.
+
+
+## Prototype 010 — préparation et lecture du match
+
+La préparation compare les notes effectives des trois titulaires et des adversaires
+sur six axes. Les moyennes sont descriptives, sans prédiction de victoire.
+Les orientations tactiques et fréquences théoriques de tirs extérieurs sont expliquées.
+Le bilan présente les statistiques collectives réellement simulées.
+Le moteur et l’équilibrage restent inchangés ; les notes hors simulation sont identifiées.

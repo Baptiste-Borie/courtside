@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 009
+## Prototype 010
 
 Écran principal : six joueurs, choix de trois titulaires, tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-009.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-010.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -139,3 +139,16 @@ considéré comme une Coupe du quartier. La réputation commence à zéro à la 
 les résultats détaillés des anciennes éditions ne sont pas reconstitués.
 La revue automatique joue jusqu’au déblocage de la ville, y dispute un tournoi,
 vérifie le paiement et la reprise, et capture le circuit et son affichage mobile.
+
+## Préparation et bilan des matchs
+
+Avant chaque match, le tournoi compare six secteurs sur 100, fatigue actuelle incluse.
+Ces moyennes décrivent les profils ; les duels, la taille et le hasard comptent aussi.
+Les adversaires sont consultables et chaque tactique explique son orientation.
+Les journées de récupération à venir ne sont pas anticipées dans la comparaison.
+
+Après le match, le bilan compare la réussite au tir, les tirs extérieurs,
+les points intérieurs/extérieurs, rebonds, passes, interceptions et contres.
+Les chiffres proviennent des statistiques simulées, sans modifier le moteur.
+Les quatre caractéristiques hors simulation sont signalées dans les fiches.
+Le palmarès passe en cartes sur mobile. Aucune migration de sauvegarde supplémentaire.

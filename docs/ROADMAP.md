@@ -11,7 +11,8 @@
 - Patch 007 : fatigue, effet en match et récupération avec le calendrier.
 - Patch 008 : camps individuels payants et progression limitée par le potentiel.
 - Patch 009 : trois compétitions, déblocage par réputation et palmarès sauvegardé.
-- Prochaines étapes : enrichir les décisions de carrière et la lecture des matchs.
+- Patch 010 : aperçu adverse, comparaison des formations, explication des tactiques, bilan du match et palmarès mobile.
+- Prochaines étapes : première session de jeu après revue 010, puis priorités selon les retours.
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.

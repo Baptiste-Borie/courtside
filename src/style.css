@@ -43,3 +43,21 @@ button:disabled { opacity:.5; cursor:not-allowed; } .history-title { margin-top:
 
 .toolbar > label { min-width: 0; max-width: 100%; }
 .toolbar select { min-width: 0; max-width: 100%; }
+
+.match-preview { border: 1px solid #dce2ea; border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+.match-preview h2 { margin-top: 6px; }
+.match-preview details { margin-top: 20px; }
+.opponent-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.match-report { border-top: 1px solid #cbd7e6; margin-top: 24px; padding-top: 20px; }
+.inactive-note { color: #59677a; font-weight: 400; font-size: 10px; }
+@media (max-width: 800px) {
+  .opponent-grid { grid-template-columns: 1fr; gap: 0; }
+  .career-table { overflow: visible; }
+  .career-table table, .career-table tbody, .career-table tr { display: block; }
+  .career-table caption { display: block; }
+  .career-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .career-table tr { border: 1px solid #dce2ea; border-radius: 8px; margin: 12px 0; padding: 12px; }
+  .career-table th { display: block; text-align: left; padding: 0 0 10px; }
+  .career-table td { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; }
+  .career-table td::before { content: attr(data-label); font-weight: 600; text-align: left; }
+}
