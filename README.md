@@ -27,7 +27,7 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 008
+## Prototype 009
 
 Écran principal : six joueurs, choix de trois titulaires, tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
@@ -47,7 +47,7 @@ synthétiques avec chaque tactique. Il ne constitue pas une validation exhaustiv
  de l'équilibrage. Aucun outil supplémentaire n'est nécessaire.
 
 Les tests vérifient la génération, les règles, les statistiques et la reproductibilité.
-La direction artistique reste provisoire. Aucune progression des joueurs pour le moment.
+La direction artistique reste provisoire. Les camps individuels permettent la progression des joueurs.
 
 Voir [game design](docs/GAME_DESIGN.md), [roadmap](docs/ROADMAP.md) et
 [décisions](docs/DECISIONS.md).
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-008.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-009.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -75,7 +75,7 @@ une dépense distincte ; dix joueurs maximum. Les dossiers observés restent
 accessibles. Campagnes de sept jours dans le jeu ; rapports exacts pour ce prototype.
 La revue automatique couvre aussi le scouting et le recrutement après deux tournois.
 
-Quatre sections : Mon équipe, Tournoi, Scouting et Laboratoire. La navigation
+Six sections : Mon équipe, Tournoi, Scouting, Entraînement, Circuit et Laboratoire. La navigation
 conserve la session. Les captures automatiques désactivent les animations
 pour enregistrer les dossiers entièrement visibles.
 
@@ -99,8 +99,7 @@ au retour du scouting (sept jours). Un match prêt bloque l’avancement jusqu�
 sa résolution. Aucune attente réelle.
 
 Le calendrier est sauvegardé. Une partie du patch 005 est migrée au 1er avril,
-avec son éventuel match en cours immédiatement disponible. Fatigue, entraînements
-et vieillissement ne sont pas encore simulés.
+avec son éventuel match en cours immédiatement disponible. La fatigue et les camps suivent le calendrier ; le vieillissement des caractéristiques reste à développer.
 
 ## Fatigue et récupération
 
@@ -109,7 +108,7 @@ son endurance. Tous les joueurs récupèrent six points par jour lors d’un sau
 entre événements. La fatigue est comprise entre 0 et 100, affichée sur les fiches
 et sauvegardée. Au-delà de 20, elle réduit certaines performances jusqu’à 25 %.
 Les notes permanentes restent intactes. Les adversaires suivent les mêmes règles.
-Les blessures et entraînements ne sont pas encore simulés.
+Les blessures ne sont pas encore simulées.
 
 ## Camps individuels
 
@@ -118,3 +117,25 @@ Onglet Entraînement : choisissez un joueur et un axe, puis financez un camp
 prend huit points de fatigue. Le total des notes ne dépasse pas le budget défini
 par son potentiel ; chaque note reste au plus à 99. Un camp à la fois.
 Les anciennes sauvegardes sont migrées ; un camp en cours survit au rechargement.
+
+## Circuit et palmarès
+
+L’onglet Circuit présente trois compétitions. La Coupe du quartier est accessible
+immédiatement. L’Open de la ville demande 12 points de réputation ; le Défi régional,
+30 points. Les places 1 à 4 rapportent respectivement 6, 4, 2 et 1 points de réputation.
+Les trois formats restent des tournois 3v3 à quatre équipes.
+
+La ville renforce les notes adverses de 6 (maximum 99) et double les récompenses ;
+le régional les renforce de 12 et triple les récompenses. Le club conserve ses notes.
+Ces valeurs sont provisoires. On choisit une compétition avant l’inscription ;
+une seule peut être en cours. Aucun droit d’entrée supplémentaire.
+
+Chaque tournoi terminé laisse une entrée au palmarès : compétition, édition, date,
+place, victoires, francs et réputation gagnés. La récompense est versée une seule fois.
+Le circuit en cours, les déblocages et le palmarès survivent au rechargement.
+
+Les sauvegardes antérieures conservent effectif, argent, titres et tournoi en cours,
+considéré comme une Coupe du quartier. La réputation commence à zéro à la migration ;
+les résultats détaillés des anciennes éditions ne sont pas reconstitués.
+La revue automatique joue jusqu’au déblocage de la ville, y dispute un tournoi,
+vérifie le paiement et la reprise, et capture le circuit et son affichage mobile.

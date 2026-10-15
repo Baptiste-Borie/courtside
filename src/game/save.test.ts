@@ -1,3 +1,4 @@
+import { createCareer } from './circuit'
 import { createCalendar } from './calendar'
 import { expect, it } from 'vitest'
 import { decodeSave, type Save } from './save'
@@ -5,11 +6,11 @@ import { createRoster, playRound, startTournament } from './tournament'
 import { createScouting, launchScouting, revealNext, recruit } from './scouting'
 function game(): Save {
  const roster=createRoster(1983)
- return {version:1,training:null,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
+ return {version:1,career:createCareer(),training:null,calendar:createCalendar(),name:'Les Aurores',roster,selected:roster.slice(0,3).map(p=>p.id),tactic:'balanced',tournament:null,money:0,titles:0,edition:0,scouting:createScouting(1983)}
 }
 it('reprend une partie avec tournoi en cours et recrutement',()=>{
  const s=game();s.edition=1;s.tournament=playRound(startTournament(1983,s.roster,s.selected,s.name),s.roster,s.selected,'inside')
- s.calendar.matchDay=0
+ s.calendar.matchDay=0;s.career.active='neighborhood'
  s.scouting=revealNext(launchScouting(s.scouting,1000).state)
  const hired=recruit(s.scouting,s.roster,950,s.scouting.known[0]!)
  s.roster=hired.roster;s.money=hired.money

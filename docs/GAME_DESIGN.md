@@ -90,3 +90,14 @@ Huit points de fatigue si progression effective. Pas encore de progression en ma
 de variation probabiliste ou de régression liée à l'âge. Un camp en attente est
 sauvegardé et traité au prochain événement correspondant. Matchs autorisés pendant
 le camp : simplification provisoire. Les adversaires ne suivent pas encore de camps.
+
+
+## Prototype 009 — circuit
+
+Coupe du quartier (0 réputation), Open de la ville (12), Défi régional (30).
+Chaque édition terminée donne 6/4/2/1 réputation selon la place. Les récompenses
+locales de 300/200/125/75 F sont multipliées par 2 en ville et 3 en régional.
+Les adversaires gagnent respectivement 0/6/12 sur leurs caractéristiques (plafond 99).
+Le format reste le même ; difficulté et montants seront équilibrés plus tard.
+Le palmarès garde les résultats à partir du patch 009 ; aucune reconstitution
+arbitraire des résultats anciens. La réputation commence à zéro à la migration.

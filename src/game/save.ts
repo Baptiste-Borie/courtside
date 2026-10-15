@@ -1,3 +1,4 @@
+import { circuits, createCareer, type Career } from './circuit'
 import { trainingLabels, type Training } from './training'
 import { createCalendar, type Calendar } from './calendar'
 import { attributeLabels, tactics, type Player } from './model'
@@ -5,7 +6,7 @@ import type { ScoutingState } from './scouting'
 import type { Tournament } from './tournament'
 export const saveKey = 'courtside.save.v1'
 export interface Save {
-  version: 1; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
+  version: 1; career: Career; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
   tactic: keyof typeof tactics; tournament: Tournament | null
   money: number; titles: number; edition: number; scouting: ScoutingState
 }
@@ -63,5 +64,19 @@ export function decodeSave(text: string): Save {
   const t=x.training
   if(t!==null && (!record(t)||typeof t.playerId!=='string'||!x.roster.some(p=>p.id===t.playerId)||!Object.hasOwn(trainingLabels,String(t.focus))||!integer(t.day,c.day as number)||t.day!==c.trainingDay)) throw Error('Camp d’entraînement invalide.')
   if(t===null && c.trainingDay!==null)throw Error('Calendrier d’entraînement incohérent.')
+  // Les anciennes éditions ne sont pas reconstituées : leurs détails sont inconnus.
+  if(x.career===undefined)x.career={...createCareer(),active:record(x.tournament)&&!x.tournament.finished?'neighborhood':null}
+  const career=x.career
+  if(!record(career)||!integer(career.reputation)||!Array.isArray(career.history)||!(career.active===null||Object.hasOwn(circuits,String(career.active))))throw Error('Circuit de compétitions invalide.')
+  if(record(x.tournament)&&!x.tournament.finished ? career.active===null : career.active!==null)throw Error('Compétition active incohérente.')
+  if(career.active!==null&&career.reputation<circuits[career.active as keyof typeof circuits].threshold)throw Error('Compétition verrouillée dans la sauvegarde.')
+  let previousEdition=0,previousDay=0,reputation=0
+  for(const result of career.history) {
+    if(!record(result)||!integer(result.edition,previousEdition+1,x.edition as number)||!integer(result.day,previousDay,c.day as number)||!integer(result.rank,1,4)||!integer(result.wins,0,3)||!Object.hasOwn(circuits,String(result.circuit)))throw Error('Palmarès invalide.')
+    const definition=circuits[result.circuit as keyof typeof circuits]
+    if(reputation<definition.threshold||result.reward!==[300,200,125,75][(result.rank as number)-1]!*definition.multiplier||result.reputation!==[6,4,2,1][(result.rank as number)-1])throw Error('Récompense de compétition invalide.')
+    reputation+=result.reputation as number;previousEdition=result.edition as number;previousDay=result.day as number
+  }
+  if(career.reputation!==reputation)throw Error('Réputation incohérente.')
   return x as unknown as Save
 }

@@ -34,3 +34,12 @@ button:disabled { opacity:.5; cursor:not-allowed; } .history-title { margin-top:
 .event-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; border:1px solid #dce2ea; border-radius:8px; padding:16px; margin:20px 0; }.event-bar p { margin:4px 0; }.scouting-pending { padding:16px; background:#eef4fa; border-radius:8px; }
 
 .fitness { display:flex; align-items:center; gap:12px; font-size:12px; color:#59677a; }.fitness meter { width:100px; }
+
+.circuit-panel { border: 1px solid #d5dfeb; border-radius: 8px; padding: 20px; }
+.circuit-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.circuit-card { border: 1px solid #d5dfeb; border-radius: 8px; padding: 16px; min-width: 0; }
+.circuit-card button { max-width: 100%; white-space: normal; }
+@media (max-width: 800px) { .circuit-grid { grid-template-columns: 1fr; } }
+
+.toolbar > label { min-width: 0; max-width: 100%; }
+.toolbar select { min-width: 0; max-width: 100%; }

@@ -10,7 +10,8 @@
 - Patch 006 : calendrier événementiel, matchs programmés et délai de scouting.
 - Patch 007 : fatigue, effet en match et récupération avec le calendrier.
 - Patch 008 : camps individuels payants et progression limitée par le potentiel.
-- Prochaines étapes : circuit de compétitions, réputation et historique.
+- Patch 009 : trois compétitions, déblocage par réputation et palmarès sauvegardé.
+- Prochaines étapes : enrichir les décisions de carrière et la lecture des matchs.
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.
