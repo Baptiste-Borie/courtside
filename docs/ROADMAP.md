@@ -12,7 +12,8 @@
 - Patch 008 : camps individuels payants et progression limitée par le potentiel.
 - Patch 009 : trois compétitions, déblocage par réputation et palmarès sauvegardé.
 - Patch 010 : aperçu adverse, comparaison des formations, explication des tactiques, bilan du match et palmarès mobile.
-- Prochaines étapes : première session de jeu après revue 010, puis priorités selon les retours.
+- Patch 011 : première direction visuelle playground, introduction 1983 et sélection initiale de six joueurs parmi douze.
+- Prochaines étapes : revue visuelle 011 et ajustements avant une première session de jeu.
 - Plus tard : économie, progression, badges, monde vivant et carrière.
 
 La revue du prototype 001 a validé les captures ; le joueur souhaite avancer vers un jeu concret avant l’équilibrage.

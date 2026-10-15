@@ -43,7 +43,7 @@ it('débloque les compétitions par les résultats et reprend le palmarès sauve
  let career=createCareer(),edition=0
  while(career.reputation<12)career=complete(career,'neighborhood',++edition).career
  const ended=complete(career,'city',++edition);career=ended.career
- const save:Save={version:1,career,training:null,calendar:{...createCalendar(),day:edition*20},name:'Club',roster,selected,tactic:'balanced',tournament:ended.tournament,money:1000,titles:0,edition,scouting:createScouting(1983)}
+ const save:Save={version:1,founding:{completed:true,selected:[]},career,training:null,calendar:{...createCalendar(),day:edition*20},name:'Club',roster,selected,tactic:'balanced',tournament:ended.tournament,money:1000,titles:0,edition,scouting:createScouting(1983)}
  expect(decodeSave(JSON.stringify(save))).toEqual(save)
  for(const changes of [{reputation:999},{active:'unknown'},{history:[{...career.history[0],reward:999}]}]) expect(()=>decodeSave(JSON.stringify({...save,career:{...career,...changes}}))).toThrow()
  const old=JSON.parse(JSON.stringify(save));delete old.career

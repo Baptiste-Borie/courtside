@@ -110,3 +110,14 @@ sur six axes. Les moyennes sont descriptives, sans prédiction de victoire.
 Les orientations tactiques et fréquences théoriques de tirs extérieurs sont expliquées.
 Le bilan présente les statistiques collectives réellement simulées.
 Le moteur et l’équilibrage restent inchangés ; les notes hors simulation sont identifiées.
+
+
+## Prototype 011 — début de carrière
+
+France, printemps 1983 : tu montes ton équipe pour entrer dans le circuit local.
+L’introduction est courte et accompagne la sélection du nom et des six joueurs
+parmi douze candidats préexistants et reproductibles. Pas de budget à ce stade.
+La sélection incomplète est sauvegardée ; confirmation à six joueurs exactement.
+Les trois premiers sont titulaires par défaut, les trois autres sur le banc.
+La sélection est propre aux nouvelles parties ; les sauvegardes précédentes sont préservées.
+Direction visuelle : playground, encre sombre et orange, cartes joueurs et terrains graphiques.

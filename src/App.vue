@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import FoundingScreen from './FoundingScreen.vue'
+import PlayerCard from './PlayerCard.vue'
+import { createFounding, foundClub, type Founding } from './game/founding'
 import MatchPreview from './MatchPreview.vue'
 import MatchReport from './MatchReport.vue'
-import { inactiveAttributes } from './game/analysis'
 import { circuits, createCareer, enterCircuit, finishCircuit, type CircuitId } from './game/circuit'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { startTraining, train, trainingCost, trainingLabels, type Training, type TrainingFocus } from './game/training'
@@ -9,9 +11,10 @@ import { afterPlaying, recover } from './game/fitness'
 import { advanceCalendar, afterMatch, createCalendar, dateLabel, nextEvent, scheduleScouting, scheduleTournament, yearAt } from './game/calendar'
 import { decodeSave, saveKey, type Save } from './game/save'
 import Laboratory from './Laboratory.vue'
-import { attributeLabels, tactics, type Tactic, type Player, type Attribute } from './game/model'
+import { attributeLabels, tactics, type Tactic } from './game/model'
 import { createScouting, launchScouting, revealNext, closeCampaign, recruit, recruitmentCost, scoutingCost } from './game/scouting'
 import { createRoster, playRound, type Tournament } from './game/tournament'
+const founding=shallowRef<Founding>(createFounding())
 const career=shallowRef(createCareer()), chosenCircuit=ref<CircuitId>('neighborhood')
 const currentCircuit=computed(()=>career.value.active ?? career.value.history.at(-1)?.circuit ?? chosenCircuit.value)
 const lastCompetition=computed(()=>career.value.history.find(result=>result.edition===edition.value))
@@ -49,12 +52,12 @@ try {
  const raw=localStorage.getItem(saveKey)
  if(raw) {
   const loaded=decodeSave(raw)
-  career.value=loaded.career;training.value=loaded.training;calendar.value=loaded.calendar;name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;tactic.value=loaded.tactic
+  founding.value=loaded.founding;trainingPlayer.value=loaded.roster[0]!.id;career.value=loaded.career;training.value=loaded.training;calendar.value=loaded.calendar;name.value=loaded.name;roster.value=loaded.roster;selected.value=loaded.selected;tactic.value=loaded.tactic
   tournament.value=loaded.tournament;money.value=loaded.money;titles.value=loaded.titles;edition.value=loaded.edition;scouting.value=loaded.scouting
   saveStatus.value='Partie reprise'
  }
 } catch(e) {canSave=false;saveStatus.value=`Reprise impossible : ${(e as Error).message} Votre sauvegarde est conservée.`}
-function snapshot(): Save {return {version:1,career:career.value,training:training.value,calendar:calendar.value,name:name.value,roster:roster.value,selected:selected.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
+function snapshot(): Save {return {version:1,founding:founding.value,career:career.value,training:training.value,calendar:calendar.value,name:name.value,roster:roster.value,selected:selected.value,tactic:tactic.value,tournament:tournament.value,money:money.value,titles:titles.value,edition:edition.value,scouting:scouting.value}}
 watch(snapshot,()=>{
  if(!canSave) return
  try {localStorage.setItem(saveKey,JSON.stringify(snapshot()));saveStatus.value='Partie sauvegardée'}
@@ -63,7 +66,7 @@ watch(snapshot,()=>{
 function newGame() {
  if(!window.confirm('Effacer votre partie sauvegardée et recommencer ?')) return
  try {localStorage.removeItem(saveKey)} catch {saveStatus.value='Impossible d’effacer la sauvegarde.';return}
- canSave=true;career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
+ canSave=true;founding.value=createFounding();trainingPlayer.value='player-0';career.value=createCareer();chosenCircuit.value='neighborhood';training.value=null;trainingReport.value='';calendar.value=createCalendar();name.value='Les Aurores';roster.value=createRoster(1983);selected.value=roster.value.slice(0,3).map(p=>p.id)
  tactic.value='balanced';tournament.value=null;money.value=0;titles.value=0;edition.value=0;scouting.value=createScouting(1983);screen.value='team';error.value=''
 }
 const lastMatch=computed(()=>tournament.value?.matches.filter(m=>m.home==='club'||m.away==='club').at(-1))
@@ -95,15 +98,30 @@ function hire(id:string) {
  try {const next=recruit(scouting.value,roster.value,money.value,id);roster.value=next.roster;money.value=next.money;error.value=''}
  catch(e) {error.value=(e as Error).message}
 }
-function strengths(player:Player) {return (Object.entries(player.attributes) as [Attribute,number][]).filter(([key])=>!inactiveAttributes.includes(key)).sort((a,b)=>b[1]-a[1]).slice(0,3)}
+function pickFounder(id:string) {
+ const ids=founding.value.selected
+ founding.value={completed:false,selected:ids.includes(id)?ids.filter(value=>value!==id):ids.length<6?[...ids,id]:ids}
+ error.value=''
+}
+function confirmFounding() {
+ try {
+  const club=foundClub(name.value,founding.value.selected)
+  name.value=club.name;roster.value=club.roster;selected.value=club.selected;trainingPlayer.value=club.roster[0]!.id
+  founding.value=club.founding;screen.value='team';error.value=''
+ } catch(e) {error.value=(e as Error).message}
+}
 function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?.name}
 </script>
 <template>
-  <nav class="mode-nav" aria-label="Sections du jeu"><button @click="screen='team'" :aria-pressed="screen==='team'">Mon équipe</button><button @click="screen='tournament'" :aria-pressed="screen==='tournament'">Tournoi</button><button @click="screen='scouting'" :aria-pressed="screen==='scouting'">Scouting</button><button @click="screen='training'" :aria-pressed="screen==='training'">Entraînement</button><button @click="screen='circuit'" :aria-pressed="screen==='circuit'">Circuit</button><button @click="screen='lab'" :aria-pressed="screen==='lab'">Laboratoire</button></nav>
-  <Laboratory v-if="lab" />
+  <FoundingScreen v-if="!founding.completed" v-model:name="name" :founding="founding" :save-status="saveStatus" :error="error" @pick="pickFounder" @confirm="confirmFounding" @restart="newGame" />
+  <div v-else class="game-shell">
+  <aside class="game-rail"><div class="brand"><svg class="brand-ball" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="currentColor"/><path d="M2 16h28M16 2v28M6 6c14 7 14 13 0 20M26 6c-14 7-14 13 0 20" fill="none" stroke="#19251f" stroke-width="1.5"/></svg> COURTSIDE<span class="brand-edition">1983</span></div><p class="rail-caption">DU BITUME AUX SOMMETS</p>
+  <nav class="mode-nav" aria-label="Sections du jeu"><button @click="screen='team'" :aria-pressed="screen==='team'">Mon équipe</button><button @click="screen='tournament'" :aria-pressed="screen==='tournament'">Tournoi</button><button @click="screen='scouting'" :aria-pressed="screen==='scouting'">Scouting</button><button @click="screen='training'" :aria-pressed="screen==='training'">Entraînement</button><button @click="screen='circuit'" :aria-pressed="screen==='circuit'">Circuit</button><button @click="screen='lab'" :aria-pressed="screen==='lab'">Laboratoire</button></nav><div class="rail-club"><span class="eyebrow">VOTRE CLUB</span><strong>{{ name }}</strong><span>{{ roster.length }} joueurs · {{ career.reputation }} réputation</span></div><p class="rail-footer">FRANCE / SAISON {{ currentYear }}<br>UNE CARRIÈRE À CONSTRUIRE.</p></aside>
+  <div class="game-content"><Laboratory v-if="lab" />
   <main v-else>
-    <header><div><p class="eyebrow">France · {{ dateLabel(calendar.day) }} · Circuit streetball</p><h1>{{ screen==='team' ? 'Votre équipe' : screen==='tournament' ? circuits[currentCircuit].name : screen==='circuit' ? 'Votre parcours' : screen==='training' ? 'Développer vos joueurs' : 'Votre réseau de scouting' }}</h1></div><span class="tag">{{ money }} F · {{ career.reputation }} réputation · {{ titles }} titre{{ titles > 1 ? 's' : '' }}</span></header>
+    <header><div><p class="eyebrow">France · {{ dateLabel(calendar.day) }} · Circuit streetball</p><h1>{{ screen==='team' ? 'Votre équipe' : screen==='tournament' ? circuits[currentCircuit].name : screen==='circuit' ? 'Votre parcours' : screen==='training' ? 'Développer vos joueurs' : 'Votre réseau de scouting' }}</h1></div><div class="club-wallet"><span><small>TRÉSORERIE</small><b>{{ money }} <em>F</em></b></span><span><small>RÉPUTATION</small><b>{{ career.reputation }}</b></span><span><small>TITRES</small><b>{{ titles }}</b></span></div></header>
     <p>{{ screen==='team' ? 'Choisissez trois titulaires parmi vos joueurs, puis inscrivez votre équipe au tournoi.' : screen==='tournament' ? 'Trois rencontres pour décrocher le titre et financer vos prochains recrutements.' : screen==='circuit' ? 'Gagnez en réputation pour accéder à de nouvelles compétitions et construisez votre palmarès.' : screen==='training' ? 'Investissez dans un camp individuel pour améliorer durablement un joueur.' : 'Découvrez des profils, comparez leurs qualités et renforcez votre équipe.' }}</p>
+    <section v-if="screen==='team'" class="club-banner"><div><p class="eyebrow">VOTRE ÉQUIPE / CIRCUIT STREETBALL</p><h2>{{ name }}</h2><p>Six au départ. Trois sur le terrain.<br>À vous de trouver l’alchimie.</p></div><div class="banner-court" aria-hidden="true"><span>3×3</span><svg viewBox="0 0 320 180"><path d="M10 10h300v160H10zM160 10v160"/><circle cx="160" cy="90" r="30"/><path d="M10 50h65v80H10M310 50h-65v80h65"/><path d="M10 25a85 85 0 0 1 0 130M310 25a85 85 0 0 0 0 130"/></svg></div></section>
     <section class="event-bar" aria-label="Prochain événement"><div><p class="eyebrow">Calendrier</p><p v-if="upcoming">{{ upcoming.label }} · {{ dateLabel(upcoming.day) }}</p><p v-else-if="calendar.matchDay!==null">Votre match est prêt à être joué.</p><p v-else>Inscrivez votre équipe à un tournoi, lancez un scouting ou financez un camp d’entraînement.</p></div><button v-if="upcoming" @click="advance">Avancer au prochain événement</button><button v-else-if="calendar.matchDay!==null && screen!=='tournament'" @click="screen='tournament'">Rejoindre le tournoi</button></section>
     <div v-if="screen==='team' || screen==='tournament'" class="toolbar"><label>Nom de votre équipe<input v-model="name" :disabled="!!tournament && !tournament.finished" maxlength="40" /></label><label>Tactique<select id="club-tactic" aria-label="Tactique" v-model="tactic"><option v-for="(label,key) in tactics" :value="key" :key="key">{{ label }}</option></select></label><label v-if="!tournament || tournament.finished">Compétition<select v-model="chosenCircuit"><option v-for="(definition,id) in circuits" :key="id" :value="id" :disabled="career.reputation<definition.threshold">{{ definition.name }}{{ career.reputation<definition.threshold ? ` · ${definition.threshold} réputation requise` : '' }}</option></select></label><button v-if="!tournament || tournament.finished" class="primary" :disabled="selected.length!==3" @click="start">{{ tournament ? 'Participer au prochain tournoi' : 'Inscrire mon équipe' }}</button></div>
     <div class="save-bar"><p role="status">{{ saveStatus }}</p><button @click="newGame">Nouvelle partie</button></div>
@@ -111,7 +129,7 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
     <section v-if="screen==='tournament' && tournament" class="result">
       <p class="eyebrow">{{ circuits[currentCircuit].name }} · Édition {{ edition }}</p>
       <template v-if="!tournament.finished"><h2>Match {{ tournament.round+1 }} sur 3 · {{ opponent?.name }}</h2><p>Chaque équipe affronte les trois autres. Vous pouvez changer vos titulaires et votre tactique entre les matchs.</p><button class="primary" :disabled="selected.length!==3 || calendar.matchDay===null || calendar.matchDay>calendar.day" @click="play">Jouer le prochain match</button></template>
-      <template v-else><h2>{{ tournament.rank===1 ? 'Compétition remportée !' : `Tournoi terminé : ${tournament.rank}e place` }}</h2><p>{{ lastCompetition?.reward ?? tournament.reward }} F gagnés. <span v-if="lastCompetition">+{{ lastCompetition.reputation }} réputation.</span> {{ tournament.rank===1 ? 'Un premier titre pour votre équipe.' : 'Essayez une autre composition au prochain tournoi.' }}</p><p class="hint">Investissez vos gains dans le scouting pour découvrir et recruter de nouveaux joueurs.</p></template>
+      <template v-else><h2>{{ tournament.rank===1 ? 'Compétition remportée !' : `Tournoi terminé : ${tournament.rank}e place` }}</h2><p>{{ lastCompetition?.reward ?? tournament.reward }} F gagnés. <span v-if="lastCompetition">+{{ lastCompetition.reputation }} réputation.</span> {{ tournament.rank===1 ? 'Un titre de plus dans votre histoire.' : 'Essayez une autre composition au prochain tournoi.' }}</p><p class="hint">Investissez vos gains dans le scouting pour découvrir et recruter de nouveaux joueurs.</p></template>
     </section>
     <MatchPreview v-if="screen==='tournament' && opponent" :club="selectedTeam" :opponent="opponent" :tactic="tactic" />
     <section v-if="screen==='tournament' && lastMatch" class="result" aria-live="polite"><p class="eyebrow">Dernier match</p><h2>{{ teamName(lastMatch.home) }} <strong>{{ lastMatch.result.scores[0] }} — {{ lastMatch.result.scores[1] }}</strong> {{ teamName(lastMatch.away) }}</h2><p>{{ lastMatch.result.winner==='club'?'Victoire !':'Défaite.' }}</p><div class="table-wrap"><table><caption>Vos joueurs lors de ce match</caption><thead><tr><th>Joueur</th><th>PTS</th><th>REB</th><th>PD</th><th>INT</th><th>CTR</th></tr></thead><tbody><tr v-for="line in lastMatch.result.stats[lastMatch.home==='club'?0:1]" :key="line.playerId"><th>{{ roster.find(p=>p.id===line.playerId)?.firstName }} {{ roster.find(p=>p.id===line.playerId)?.lastName }}</th><td>{{ line.points }}</td><td>{{ line.rebounds }}</td><td>{{ line.assists }}</td><td>{{ line.steals }}</td><td>{{ line.blocks }}</td></tr></tbody></table></div><MatchReport :result="lastMatch.result" :side="lastMatch.home==='club'?0:1" :opponent-name="teamName(lastMatch.home==='club'?lastMatch.away:lastMatch.home) ?? 'Adversaire'" /></section>
@@ -140,15 +158,15 @@ function teamName(id:string) {return tournament.value?.teams.find(t=>t.id===id)?
       <button v-if="!scouting.campaign" :disabled="money<scoutingCost || prospects.length===30" @click="campaign">Lancer un scouting · 50 F</button>
       <p v-else-if="calendar.scoutingDay!==null" class="scouting-pending">Votre observateur revient le {{ dateLabel(calendar.scoutingDay) }}. Avancez au prochain événement pour recevoir ses dossiers.</p>
       <div v-else class="reveal-zone" aria-live="polite"><p>{{ scouting.revealed }}/{{ scouting.campaign.length }} dossiers révélés</p><button v-if="scouting.revealed<scouting.campaign.length" class="primary" @click="reveal">Révéler le prochain dossier</button><button v-else @click="finishCampaign">Terminer la campagne</button><div class="prospect-grid"><article v-for="id in scouting.campaign.slice(0,scouting.revealed)" :key="id" class="prospect-card"><p class="eyebrow">Nouveau prospect</p><h3>{{ scouting.pool.find(p=>p.id===id)?.firstName }} {{ scouting.pool.find(p=>p.id===id)?.lastName }}</h3><p>Potentiel {{ scouting.pool.find(p=>p.id===id)?.potential }} · {{ scouting.pool.find(p=>p.id===id)?.height }} cm</p></article></div></div>
-      <details v-if="prospects.length" :open="!scouting.campaign"><summary>Les joueurs observés</summary><div class="prospect-grid"><article v-for="player in prospects" :key="player.id" class="prospect-card"><h3>{{ player.firstName }} {{ player.lastName }}</h3><p class="hint">{{ currentYear-player.birthYear }} ans · {{ player.height }} cm · Potentiel {{ player.potential }}</p><div class="strengths"><span v-for="([key,value]) in strengths(player)" :key="key">{{ attributeLabels[key] }} <b>{{ value }}</b></span></div><p class="fitness">Fatigue {{ player.fatigue }}/100 <meter min="0" max="100" low="35" high="65" optimum="0" :value="player.fatigue">{{ player.fatigue }}</meter></p><details><summary>Caractéristiques complètes</summary><dl><div v-for="(label,key) in attributeLabels" :key="key"><dt>{{ label }}<span v-if="inactiveAttributes.includes(key)" class="inactive-note"> · hors simulation</span></dt><dd>{{ player.attributes[key] }}</dd></div></dl></details><p class="hint">Rapport complet pour ce prototype.</p><button :disabled="roster.some(p=>p.id===player.id)||money<recruitmentCost(player)||roster.length>=10" @click="hire(player.id)">{{ roster.some(p=>p.id===player.id)?'Dans votre équipe':`Recruter · ${recruitmentCost(player)} F` }}</button></article></div></details>
+      <details v-if="prospects.length" :open="!scouting.campaign"><summary>Les joueurs observés</summary><div class="prospect-grid"><PlayerCard v-for="(player,index) in prospects" :key="player.id" :player="player" :index="index" :year="currentYear" mode="scout" :cost="recruitmentCost(player)" :hired="roster.some(p=>p.id===player.id)" :disabled="money<recruitmentCost(player)||roster.length>=10" @hire="hire(player.id)" /></div></details>
       <p class="hint">Effectif : {{ roster.length }}/10. Une campagne prend sept jours dans le jeu. Les dossiers restent disponibles après leur révélation.</p>
     </section>
     <div v-if="screen==='team' || screen==='tournament'" class="section-content">
       <section v-if="screen==='team'" class="team"><h2>Votre effectif · {{ selected.length }}/3 titulaires</h2><p class="hint">Décochez un titulaire pour libérer sa place. Aucun poste imposé : testez les associations. Les titulaires se fatiguent ; tous les joueurs récupèrent six points par jour. Au-delà de 20, la fatigue réduit leurs performances.</p>
-        <article v-for="player in roster" :key="player.id"><div class="player-title"><h3>{{ player.firstName }} {{ player.lastName }}</h3><label class="selection"><input type="checkbox" :checked="selected.includes(player.id)" :disabled="!selected.includes(player.id)&&selected.length===3" @change="toggle(player.id)" />Titulaire</label></div><p class="hint">{{ currentYear-player.birthYear }} ans · {{ player.height }} cm · {{ player.weight }} kg · Potentiel {{ player.potential }}</p><div class="strengths"><span v-for="([key,value]) in strengths(player)" :key="key">{{ attributeLabels[key] }} <b>{{ value }}</b></span></div><p class="fitness">Fatigue {{ player.fatigue }}/100 <meter min="0" max="100" low="35" high="65" optimum="0" :value="player.fatigue">{{ player.fatigue }}</meter></p><details><summary>Caractéristiques complètes</summary><dl><div v-for="(label,key) in attributeLabels" :key="key"><dt>{{ label }}<span v-if="inactiveAttributes.includes(key)" class="inactive-note"> · hors simulation</span></dt><dd>{{ player.attributes[key] }}</dd></div></dl></details></article>
+        <div class="roster-grid"><PlayerCard v-for="(player,index) in roster" :key="player.id" :player="player" :index="index" :year="currentYear" :chosen="selected.includes(player.id)" :disabled="!selected.includes(player.id)&&selected.length===3" @toggle="toggle(player.id)" /></div>
       </section>
       <section v-if="screen==='tournament'" class="team"><h2>{{ tournament?'Classement du tournoi':circuits[chosenCircuit].name }}</h2><template v-if="!tournament"><p>Quatre équipes, trois rencontres chacune. Premier à 21, paniers à 1 et 2 points.</p><p>Récompenses : {{ 300*circuits[chosenCircuit].multiplier }} F au champion, {{ 200*circuits[chosenCircuit].multiplier }} F au deuxième, {{ 125*circuits[chosenCircuit].multiplier }} F au troisième et {{ 75*circuits[chosenCircuit].multiplier }} F au quatrième.</p><p class="hint">Les francs sont une ressource de jeu ; les montants ne sont pas une reconstitution historique.</p></template><template v-else><div class="table-wrap"><table><caption>Départage : victoires, différence de points, points marqués, identifiant stable.</caption><thead><tr><th>Équipe</th><th>V</th><th>Diff.</th></tr></thead><tbody><tr v-for="(line,i) in tournament.standings" :key="line.teamId"><th>{{ i+1 }}. {{ line.name }}</th><td>{{ line.wins }}</td><td>{{ line.scored-line.conceded }}</td></tr></tbody></table></div><h3 class="history-title">Résultats du tournoi</h3><p v-for="match in tournament.matches" :key="`${match.round}-${match.home}`" class="hint">{{ teamName(match.home) }} {{ match.result.scores[0] }}–{{ match.result.scores[1] }} {{ teamName(match.away) }}</p></template></section>
     </div>
-    <footer>Prototype 010 · Sauvegarde locale automatique dans ce navigateur. Le temps avance d’événement en événement. Fatigue et récupération sont actives. Camps individuels disponibles. Circuit de compétitions, réputation et palmarès disponibles. La progression en match reste à développer.</footer>
-  </main>
+    <footer>COURTSIDE / 1983 · Votre carrière est sauvegardée automatiquement dans ce navigateur.</footer>
+  </main></div></div>
 </template>

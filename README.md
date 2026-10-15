@@ -27,9 +27,9 @@ npm run preview
 
 La prévisualisation nécessite un build. `npm run test:watch` lance Vitest en mode interactif.
 
-## Prototype 010
+## Prototype 011
 
-Écran principal : six joueurs, choix de trois titulaires, tournoi à quatre équipes,
+Début de carrière : six joueurs à choisir parmi douze candidats, puis trois titulaires et tournoi à quatre équipes,
 classement, récompenses et titres pendant la session. Scouting local de 30 prospects et recrutement disponibles. Sauvegarde locale automatique
 pour le moment. Le laboratoire précédent reste accessible via son onglet.
 
@@ -60,7 +60,7 @@ npm run review
 
 Une seule commande : installe Chromium s'il manque, démarre un serveur local sur
 un port libre, capture l’effectif, le tournoi, la récompense, la vue mobile et le laboratoire, vérifie les
-interactions et erreurs JavaScript, crée `review/courtside-revue-010.zip`, puis
+interactions et erreurs JavaScript, crée `review/courtside-revue-011.zip`, puis
 ferme le navigateur et le serveur. Il n'est pas nécessaire de lancer `npm run dev`.
 
 Le ZIP contient les captures et `report.json`. En cas d'échec, la commande retourne
@@ -152,3 +152,19 @@ les points intérieurs/extérieurs, rebonds, passes, interceptions et contres.
 Les chiffres proviennent des statistiques simulées, sans modifier le moteur.
 Les quatre caractéristiques hors simulation sont signalées dans les fiches.
 Le palmarès passe en cartes sur mobile. Aucune migration de sauvegarde supplémentaire.
+
+## Création du club et identité visuelle
+
+Une nouvelle carrière s’ouvre sur France, printemps 1983. Choisissez le nom du club
+et six joueurs parmi douze candidats déterministes déjà générés. La sélection est
+gratuite et sauvegardée, même avant sa confirmation. Les trois premiers choisis
+forment le trois initial, modifiable ensuite depuis Mon équipe. Les autres vont au banc.
+
+Les parties existantes passent directement à l’équipe, sans perte d’effectif ou de gains.
+Pour découvrir l’introduction, Nouvelle partie efface la partie locale après confirmation.
+Les candidats retenus deviennent exactement l’effectif du club, sans nouveau tirage.
+
+La nouvelle interface utilise une palette encre/orange, des illustrations de terrain
+et des maillots en SVG, ainsi que des cartes joueurs avec profils et barres de forces.
+Aucune image, police distante ou nouvelle dépendance n’est nécessaire.
+La revue ajoute les captures de l’introduction, du choix mobile et teste la migration.

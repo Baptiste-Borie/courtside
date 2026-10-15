@@ -1,3 +1,4 @@
+import { foundingCandidates, type Founding } from './founding'
 import { circuits, createCareer, type Career } from './circuit'
 import { trainingLabels, type Training } from './training'
 import { createCalendar, type Calendar } from './calendar'
@@ -6,7 +7,7 @@ import type { ScoutingState } from './scouting'
 import type { Tournament } from './tournament'
 export const saveKey = 'courtside.save.v1'
 export interface Save {
-  version: 1; career: Career; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
+  version: 1; founding: Founding; career: Career; training: Training | null; calendar: Calendar; name: string; roster: Player[]; selected: string[]
   tactic: keyof typeof tactics; tournament: Tournament | null
   money: number; titles: number; edition: number; scouting: ScoutingState
 }
@@ -78,5 +79,10 @@ export function decodeSave(text: string): Save {
     reputation+=result.reputation as number;previousEdition=result.edition as number;previousDay=result.day as number
   }
   if(career.reputation!==reputation)throw Error('Réputation incohérente.')
+  if(x.founding===undefined)x.founding={completed:true,selected:[]}
+  const f=x.founding
+  if(!record(f)||typeof f.completed!=='boolean'||!strings(f.selected)||f.selected.length>6||f.selected.some(id=>!foundingCandidates().some(player=>player.id===id)))throw Error('Sélection de départ invalide.')
+  if(f.completed&&f.selected.length!==0)throw Error('Sélection de départ déjà terminée.')
+  if(!f.completed&&(x.edition!==0||x.tournament!==null||x.money!==0||c.day!==0||x.training!==null||s.campaign!==null))throw Error('Début de carrière incohérent.')
   return x as unknown as Save
 }
